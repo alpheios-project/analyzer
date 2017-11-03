@@ -40,7 +40,8 @@ data.addFeature(Models.Feature.types.gender).importer
     .map('masculine', data.language.features[types.gender].masculine)
     .map('feminine', data.language.features[types.gender].feminine)
     .map('neuter', data.language.features[types.gender].neuter)
-    .map('common', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine]);
+    .map('common', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine])
+    .map('all', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine, data.language.features[types.gender].neuter]);
 
 data.addFeature(Models.Feature.types.conjugation).importer
     .map('1st', data.language.features[types.conjugation].first)

@@ -1,8 +1,8 @@
 {
-  "name": "alpheios-analyzer",
+  "name": "alpheios-tufts-adapter",
   "version": "0.0.1",
-  "description": "Alpheios Analyzer",
-  "main": "src/driver.js",
+  "description": "Alpheios Tufts Adapter",
+  "main": "src/tufts/adapter.js",
   "directories": {
     "doc": "doc"
   },
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alpheios-project/data-models.git"
+    "url": "git+https://github.com/alpheios-project/analyzer.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/alpheios-project/data-models/issues"
+    "url": "https://github.com/alpheios-project/analyzer/issues"
   },
-  "homepage": "https://github.com/alpheios-project/data-models#readme",
+  "homepage": "https://github.com/alpheios-project/analyzer#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
     "babyparse": "^0.4.6",

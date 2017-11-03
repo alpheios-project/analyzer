@@ -3,18 +3,34 @@ import * as Models from 'alpheios-data-models';
 import WordTestData from '../../tests/data/test-data';
 
 class TuftsAdapter {
-    constructor() {
+    constructor({engine=null,url=null}) {
       let latin_code = TuftsLatinData.language.toCode();
       this[latin_code] = TuftsLatinData;
       //this[Lib.languages.greek] = TuftsGreekData;
       //this.langMap = new Map([['lat', TuftsLatinData]]);
       //this.langMap = new Lib.Importer().map('lat', Lib.languages.latin).map('grc', Lib.languages.greek);
       this.langMap = new Models.FeatureImporter().map('lat', latin_code);
+      this.engineLookup = engine;
+      this.url = url;
       return this;
     }
 
     // Not implemented yet
     fetch(lang, word) {
+      let engine = this.engineLookup[lang];
+      let url = this.url.replace('r_WORD',word).replace('r_ENGINE',engine).replace('r_LANG',lang);
+      return new Promise((resolve,reject) =>  {
+        fetch(url).then(
+          function(response) {
+            let json = response.json();
+            resolve(json);
+          }
+        ).catch((error) => {
+            reject(error);
+          }
+        )
+
+      });
     }
 
     fetchTestData(lang, word) {
@@ -35,9 +51,10 @@ class TuftsAdapter {
     /**
      * A function that maps a morphological service's specific data types and values into an inflection library standard.
      * @param {object} jsonObj - A JSON data from a Morphological Analyzer.
+     * @param {object} targetWord - the target of the analysis
      * @returns {Homonym} A library standard Homonym object.
      */
-    transform (jsonObj) {
+    transform (jsonObj,targetWord) {
         "use strict";
         let lexemes = [];
         let annotationBody = jsonObj.RDF.Annotation.Body;
@@ -52,6 +69,7 @@ class TuftsAdapter {
             // Get importer based on the language
             let language = this.langMap.get(lexeme.rest.entry.dict.hdwd.lang);
             let lemma = new Models.Lemma(lexeme.rest.entry.dict.hdwd.$, language);
+            let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : "";
 
             let inflections = [];
             let inflectionsJSON = lexeme.rest.entry.infl;
@@ -60,7 +78,7 @@ class TuftsAdapter {
                 inflectionsJSON = [inflectionsJSON];
             }
             for (let inflectionJSON of inflectionsJSON) {
-                let inflection = new Models.Inflection(inflectionJSON.term.stem.$, this[language].language);
+                let inflection = new Models.Inflection(inflectionJSON.term.stem.$, this[language].language.toCode());
                 if (inflectionJSON.term.suff) {
                     // Set suffix if provided by a morphological analyzer
                     inflection.suffix = inflectionJSON.term.suff.$;
@@ -109,9 +127,9 @@ class TuftsAdapter {
 
                 inflections.push(inflection);
             }
-            lexemes.push(new Models.Lexeme(lemma, inflections));
+            lexemes.push(new Models.Lexeme(lemma, inflections,meaning));
         }
-        return new Models.Homonym(lexemes);
+        return new Models.Homonym(lexemes,targetWord);
     }
 }
 

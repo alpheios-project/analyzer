@@ -15,10 +15,10 @@ export default {
         }
       })
     ],
-    moduleName: 'alpheios-analyzer',
+    moduleName: 'AlpheiosTuftsAdapter',
     targets: [
       {
-        dest: "dist/alpheios-analyzer.js",
+        dest: "dist/alpheios-tufts-adapter.js",
         format: "umd"
       }
     ]
