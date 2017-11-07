@@ -4,7 +4,7 @@ export default {
   entry: 'src/adapter.js',
   plugins: [
     string({
-      include: ['tests/data/**/*.json']
+      include: ['src/lib/lang/data/**/*.json']
     }),
     resolve({
       module: true, // Default: true
