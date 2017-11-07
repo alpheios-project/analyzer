@@ -1,7 +1,7 @@
 import BaseAdapter from 'alpheios-morph-client'
 import TuftsLatinData from './lib/lang/latin'
 import * as Models from 'alpheios-data-models'
-import WordTestData from '../tests/data/test-data'
+import WordTestData from './lib/lang/data/test-data'
 
 class TuftsAdapter extends BaseAdapter {
   constructor ({engine = null, url = null}) {

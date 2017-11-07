@@ -8,7 +8,7 @@ describe('TuftsAdapter object', () => {
 
   beforeAll(() => {
     adapter = new TuftsAdapter({})
-    mare = require('./data/latin_noun_adj_mare.json')
+    mare = require('../src/lib/lang/data/latin_noun_adj_mare.json')
   })
 
   test('we adapted mare properly', () => {
