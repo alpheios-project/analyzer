@@ -7,8 +7,9 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "jest",
-    "build": "rollup -c rollup.config.js"
+    "test": "standard --fix && jest",
+    "build": "rollup -c rollup.config.js",
+    "lint": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -39,7 +40,8 @@
     "the-answer": "^1.0.0",
     "vue": "^2.5.3",
     "xmldom": "^0.1.27",
-    "xmltojson": "^1.3.5"
+    "xmltojson": "^1.3.5",
+    "standard": "*"
   },
   "jest": {
     "verbose": true,
