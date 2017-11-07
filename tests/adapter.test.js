@@ -1,6 +1,6 @@
 /* eslint-env jest */
 'use strict'
-import TuftsAdapter from '../src/tufts/adapter.js'
+import TuftsAdapter from '../src/adapter.js'
 import * as Models from 'alpheios-data-models'
 
 describe('TuftsAdapter object', () => {

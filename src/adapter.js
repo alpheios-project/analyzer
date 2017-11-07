@@ -1,9 +1,11 @@
-import TuftsLatinData from './lang/latin'
+import BaseAdapter from 'alpheios-morph-client'
+import TuftsLatinData from './lib/lang/latin'
 import * as Models from 'alpheios-data-models'
-import WordTestData from '../../tests/data/test-data'
+import WordTestData from '../tests/data/test-data'
 
-class TuftsAdapter {
+class TuftsAdapter extends BaseAdapter {
   constructor ({engine = null, url = null}) {
+    super()
     let latinCode = TuftsLatinData.language.toCode()
     this[latinCode] = TuftsLatinData
       // this[Lib.languages.greek] = TuftsGreekData;
@@ -15,21 +17,10 @@ class TuftsAdapter {
     return this
   }
 
-    // Not implemented yet
-  fetch (lang, word) {
+  prepareRequestUrl (lang, word) {
     let engine = this.engineLookup[lang]
     let url = this.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
-    return new Promise((resolve, reject) => {
-      window.fetch(url).then(
-          function (response) {
-            let json = response.json()
-            resolve(json)
-          }
-        ).catch((error) => {
-          reject(error)
-        }
-        )
-    })
+    return url
   }
 
   fetchTestData (lang, word) {
@@ -46,12 +37,12 @@ class TuftsAdapter {
     })
   }
 
-    /**
-     * A function that maps a morphological service's specific data types and values into an inflection library standard.
-     * @param {object} jsonObj - A JSON data from a Morphological Analyzer.
-     * @param {object} targetWord - the target of the analysis
-     * @returns {Homonym} A library standard Homonym object.
-     */
+  /**
+   * A function that maps a morphological service's specific data types and values into an inflection library standard.
+   * @param {object} jsonObj - A JSON data from a Morphological Analyzer.
+   * @param {object} targetWord - the target of the analysis
+   * @returns {Homonym} A library standard Homonym object.
+   */
   transform (jsonObj, targetWord) {
     'use strict'
     let lexemes = []

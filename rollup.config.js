@@ -1,7 +1,7 @@
 import resolve from 'rollup-plugin-node-resolve'
 import string from 'rollup-plugin-string'
 export default {
-  entry: 'src/tufts/adapter.js',
+  entry: 'src/adapter.js',
   plugins: [
     string({
       include: ['tests/data/**/*.json']
