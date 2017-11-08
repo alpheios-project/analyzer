@@ -19,7 +19,7 @@ export default {
   targets: [
     {
       dest: 'dist/alpheios-tufts-adapter.js',
-      format: 'umd'
+      format: 'es'
     }
   ]
 }

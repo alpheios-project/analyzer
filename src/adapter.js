@@ -120,6 +120,18 @@ class TuftsAdapter extends BaseAdapter {
     }
     return new Models.Homonym(lexemes, targetWord)
   }
+
+    async getHomonym(lang, word) {
+      let jsonObj = await this.fetch(lang, word)
+      if (jsonObj) {
+        let homonym = this.transform(jsonObj, word)
+        return homonym
+      }
+      else {
+        // No data found for this word
+        return undefined
+      }
+    }
 }
 
 export default TuftsAdapter
