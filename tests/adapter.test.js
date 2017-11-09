@@ -11,6 +11,27 @@ describe('TuftsAdapter object', () => {
     mare = require('../src/lib/lang/data/latin_noun_adj_mare.json')
   })
 
+  test('default values are returned', () => {
+    let grc = Models.Constants.STR_LANG_CODE_GRC
+    let retrieved = adapter[grc][Models.Feature.types.grmCase].get('nominative')
+    let def = new Models.Feature('nominative', Models.Feature.types.grmCase, grc)
+    expect(retrieved).toEqual(def)
+  })
+
+  test('mapped values are returned', () => {
+    let grc = Models.Constants.STR_LANG_CODE_GRC
+    let retrieved = adapter[grc][Models.Feature.types.declension].get('1st')
+    let def = new Models.Feature('first', Models.Feature.types.declension, grc)
+    expect(retrieved).toEqual(def)
+  })
+
+  test('unmapped values with no defaults throws an error', () => {
+    let grc = Models.Constants.STR_LANG_CODE_GRC
+    expect(() => {
+      let retrieved = adapter[grc][Models.Feature.types.person].get('1st') // eslint-disable-line no-unused-vars
+    }).toThrowError(/unknown value/)
+  })
+
   test('we adapted mare properly', () => {
     let homonym = adapter.transform(mare)
     console.log(Array.isArray(homonym.lexemes))

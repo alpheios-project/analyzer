@@ -1,5 +1,6 @@
 import BaseAdapter from 'alpheios-morph-client'
 import TuftsLatinData from './lib/lang/latin'
+import TuftsGreekData from './lib/lang/greek'
 import * as Models from 'alpheios-data-models'
 import WordTestData from './lib/lang/data/test-data'
 
@@ -7,11 +8,13 @@ class TuftsAdapter extends BaseAdapter {
   constructor ({engine = null, url = null}) {
     super()
     let latinCode = TuftsLatinData.language.toCode()
+    let greekCode = TuftsGreekData.language.toCode()
     this[latinCode] = TuftsLatinData
+    this[greekCode] = TuftsGreekData
       // this[Lib.languages.greek] = TuftsGreekData;
       // this.langMap = new Map([['lat', TuftsLatinData]]);
       // this.langMap = new Lib.Importer().map('lat', Lib.languages.latin).map('grc', Lib.languages.greek);
-    this.langMap = new Models.FeatureImporter().map('lat', latinCode)
+    this.langMap = new Models.FeatureImporter().map('lat', latinCode).map('grc', greekCode)
     this.engineLookup = engine
     this.url = url
     return this
