@@ -1038,6 +1038,11 @@ data$1.addFeature(Feature.types.declension).importer
     .map('2nd', data$1.language.features[types$1.declension].second)
     .map('3rd', data$1.language.features[types$1.declension].third);
 
+data$1.addFeature(Feature.types.person).importer
+    .map('1st', data$1.language.features[types$1.person].first)
+    .map('2nd', data$1.language.features[types$1.person].second)
+    .map('3rd', data$1.language.features[types$1.person].third);
+
 data$1.addFeature(Feature.types.gender).importer
     .map('masculine feminine', [data$1.language.features[types$1.gender].masculine, data$1.language.features[types$1.gender].feminine]);
 

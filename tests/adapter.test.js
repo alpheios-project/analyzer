@@ -28,7 +28,7 @@ describe('TuftsAdapter object', () => {
   test('unmapped values with no defaults throws an error', () => {
     let grc = Models.Constants.STR_LANG_CODE_GRC
     expect(() => {
-      let retrieved = adapter[grc][Models.Feature.types.person].get('1st') // eslint-disable-line no-unused-vars
+      let retrieved = adapter[grc][Models.Feature.types.person].get('1') // eslint-disable-line no-unused-vars
     }).toThrowError(/unknown value/)
   })
 
