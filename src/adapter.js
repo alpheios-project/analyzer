@@ -1,6 +1,7 @@
 import BaseAdapter from 'alpheios-morph-client'
 import TuftsLatinData from './lib/lang/latin'
 import TuftsGreekData from './lib/lang/greek'
+import TuftsArabicData from './lib/lang/arabic'
 import * as Models from 'alpheios-data-models'
 import WordTestData from './lib/lang/data/test-data'
 
@@ -9,6 +10,7 @@ class TuftsAdapter extends BaseAdapter {
     super()
     this['lat'] = TuftsLatinData
     this['grc'] = TuftsGreekData
+    this['ara'] = TuftsArabicData
     this.engineLookup = engine
     this.url = url
     return this
@@ -70,6 +72,9 @@ class TuftsAdapter extends BaseAdapter {
           inflection.suffix = inflectionJSON.term.suff.$
         }
 
+        if (inflectionJSON.xmpl) {
+          inflection.example = inflectionJSON.xmpl.$
+        }
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
           inflection.feature = this[language][Models.Feature.types.part].get(inflectionJSON.pofs.$)
