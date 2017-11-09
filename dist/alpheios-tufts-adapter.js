@@ -585,7 +585,7 @@ class GreekLanguageModel extends LanguageModel {
     features[Feature.types.declension] = new FeatureType(Feature.types.declension, ['first', 'second', 'third'], code);
     features[Feature.types.gender] = new FeatureType(Feature.types.gender, ['masculine', 'feminine', 'neuter'], code);
     features[Feature.types.type] = new FeatureType(Feature.types.type, ['regular', 'irregular'], code);
-    features[Feature.types.tense] = new FeatureType(Feature.types.tense, ['present', 'future', 'perfect', 'pluperfect', 'future perfect', 'aorist'], code);
+    features[Feature.types.tense] = new FeatureType(Feature.types.tense, ['present', 'future', 'imperfect', 'perfect', 'pluperfect', 'future perfect', 'aorist'], code);
     features[Feature.types.voice] = new FeatureType(Feature.types.voice, ['passive', 'active', 'mediopassive', 'middle'], code);
     features[Feature.types.mood] = new FeatureType(Feature.types.mood, ['indicative', 'subjunctive', 'optative', 'imperative'], code);
     features[Feature.types.person] = new FeatureType(Feature.types.person, ['first', 'second', 'third'], code);
