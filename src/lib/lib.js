@@ -15,6 +15,8 @@ class ImportData {
   constructor (language) {
     'use strict'
     this.language = language
+    // add all the features that the language supports so that we
+    // can return the default values if we don't need to import a mapping
     for (let featureName of Object.keys(language.features)) {
       this.addFeature(featureName)
     }

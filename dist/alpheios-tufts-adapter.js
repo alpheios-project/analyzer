@@ -911,6 +911,8 @@ class ImportData {
   constructor (language) {
     'use strict';
     this.language = language;
+    // add all the features that the language supports so that we
+    // can return the default values if we don't need to import a mapping
     for (let featureName of Object.keys(language.features)) {
       this.addFeature(featureName);
     }
@@ -1068,14 +1070,8 @@ class WordTestData {
 class TuftsAdapter extends BaseAdapter {
   constructor ({engine = null, url = null}) {
     super();
-    let latinCode = data.language.toCode();
-    let greekCode = data$1.language.toCode();
-    this[latinCode] = data;
-    this[greekCode] = data$1;
-      // this[Lib.languages.greek] = TuftsGreekData;
-      // this.langMap = new Map([['lat', TuftsLatinData]]);
-      // this.langMap = new Lib.Importer().map('lat', Lib.languages.latin).map('grc', Lib.languages.greek);
-    this.langMap = new FeatureImporter().map('lat', latinCode).map('grc', greekCode);
+    this['lat'] = data;
+    this['grc'] = data$1;
     this.engineLookup = engine;
     this.url = url;
     return this
@@ -1120,7 +1116,7 @@ class TuftsAdapter extends BaseAdapter {
     }
     for (let lexeme of annotationBody) {
             // Get importer based on the language
-      let language = this.langMap.get(lexeme.rest.entry.dict.hdwd.lang);
+      let language = lexeme.rest.entry.dict.hdwd.lang;
       let lemma = new Lemma(lexeme.rest.entry.dict.hdwd.$, language);
       let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : '';
 

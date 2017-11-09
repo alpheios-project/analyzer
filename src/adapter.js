@@ -7,14 +7,8 @@ import WordTestData from './lib/lang/data/test-data'
 class TuftsAdapter extends BaseAdapter {
   constructor ({engine = null, url = null}) {
     super()
-    let latinCode = TuftsLatinData.language.toCode()
-    let greekCode = TuftsGreekData.language.toCode()
-    this[latinCode] = TuftsLatinData
-    this[greekCode] = TuftsGreekData
-      // this[Lib.languages.greek] = TuftsGreekData;
-      // this.langMap = new Map([['lat', TuftsLatinData]]);
-      // this.langMap = new Lib.Importer().map('lat', Lib.languages.latin).map('grc', Lib.languages.greek);
-    this.langMap = new Models.FeatureImporter().map('lat', latinCode).map('grc', greekCode)
+    this['lat'] = TuftsLatinData
+    this['grc'] = TuftsGreekData
     this.engineLookup = engine
     this.url = url
     return this
@@ -59,7 +53,7 @@ class TuftsAdapter extends BaseAdapter {
     }
     for (let lexeme of annotationBody) {
             // Get importer based on the language
-      let language = this.langMap.get(lexeme.rest.entry.dict.hdwd.lang)
+      let language = lexeme.rest.entry.dict.hdwd.lang
       let lemma = new Models.Lemma(lexeme.rest.entry.dict.hdwd.$, language)
       let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : ''
 
