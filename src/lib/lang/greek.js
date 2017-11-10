@@ -20,8 +20,8 @@ data.addFeature(Models.Feature.types.gender).importer
 
 data.addFeature(Models.Feature.types.declension).importer
     .map('1st & 2nd',
-  [ data.language.features[types.gender][Models.Constants.ORD_1ST],
-    data.language.features[types.gender][Models.Constants.ORD_2ND]
+  [ data.language.features[types.declension][Models.Constants.ORD_1ST],
+    data.language.features[types.declension][Models.Constants.ORD_2ND]
   ])
 
 export default data
