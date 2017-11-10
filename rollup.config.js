@@ -19,7 +19,8 @@ export default {
   targets: [
     {
       dest: 'dist/alpheios-tufts-adapter.js',
-      format: 'es'
+      format: 'es',
+      sourceMap: true
     }
   ]
 }

@@ -1544,3 +1544,4 @@ class TuftsAdapter extends BaseAdapter {
 }
 
 export default TuftsAdapter;
+//# sourceMappingURL=alpheios-tufts-adapter.js.map
