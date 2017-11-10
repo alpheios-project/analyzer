@@ -20,8 +20,10 @@ describe('TuftsAdapter object', () => {
 
   test('mapped values are returned', () => {
     let grc = Models.Constants.STR_LANG_CODE_GRC
-    let retrieved = adapter[grc][Models.Feature.types.declension].get('1st')
-    let def = new Models.Feature('first', Models.Feature.types.declension, grc)
+    let retrieved = adapter[grc][Models.Feature.types.gender].get('masculine feminine')
+    let def = [ new Models.Feature(Models.Constants.GEND_MASCULINE, Models.Feature.types.gender, grc),
+      new Models.Feature(Models.Constants.GEND_FEMININE, Models.Feature.types.gender, grc)
+    ]
     expect(retrieved).toEqual(def)
   })
 
