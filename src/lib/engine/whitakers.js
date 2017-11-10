@@ -1,7 +1,7 @@
 import ImportData from '../lib'
 import * as Models from 'alpheios-data-models'
 
-let data = new ImportData(new Models.LatinLanguageModel())
+let data = new ImportData(new Models.LatinLanguageModel(), 'whitakerLat')
 let types = Models.Feature.types
 
 /*

@@ -1,7 +1,7 @@
 import ImportData from '../lib'
 import * as Models from 'alpheios-data-models'
 
-let data = new ImportData(new Models.ArabicLanguageModel())
+let data = new ImportData(new Models.ArabicLanguageModel(), 'aramorph')
 let types = Models.Feature.types
 
 data.addFeature(Models.Feature.types.part).importer

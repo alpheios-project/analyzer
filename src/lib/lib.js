@@ -12,9 +12,10 @@ class ImportData {
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
      */
-  constructor (language) {
+  constructor (language, engine) {
     'use strict'
     this.language = language
+    this.engine = engine
     // add all the features that the language supports so that we
     // can return the default values if we don't need to import a mapping
     for (let featureName of Object.keys(language.features)) {
