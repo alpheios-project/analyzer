@@ -1274,9 +1274,10 @@ class ImportData {
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
      */
-  constructor (language) {
+  constructor (language, engine) {
     'use strict';
     this.language = language;
+    this.engine = engine;
     // add all the features that the language supports so that we
     // can return the default values if we don't need to import a mapping
     for (let featureName of Object.keys(language.features)) {
@@ -1320,7 +1321,7 @@ class ImportData {
   }
 }
 
-let data = new ImportData(new LatinLanguageModel());
+let data = new ImportData(new LatinLanguageModel(), 'whitakerLat');
 let types = Feature.types;
 
 /*
@@ -1348,7 +1349,7 @@ data.addFeature(Feature.types.gender).importer
 data.addFeature(Feature.types.tense).importer
     .map('future_perfect', data.language.features[types.tense][TENSE_FUTURE_PERFECT]);
 
-let data$1 = new ImportData(new GreekLanguageModel());
+let data$1 = new ImportData(new GreekLanguageModel(), 'morpheusgrc');
 let types$1 = Feature.types;
 
 /*
@@ -1371,7 +1372,7 @@ data$1.addFeature(Feature.types.declension).importer
     data$1.language.features[types$1.declension][ORD_2ND]
   ]);
 
-let data$2 = new ImportData(new ArabicLanguageModel());
+let data$2 = new ImportData(new ArabicLanguageModel(), 'aramorph');
 let types$2 = Feature.types;
 
 data$2.addFeature(Feature.types.part).importer
@@ -1404,18 +1405,26 @@ class WordTestData {
 }
 
 class TuftsAdapter extends BaseAdapter {
+  /**
+   * A Morph Client Adapter for the Tufts Morphology Service
+   * @constructor
+   * @param {object} engine an object which maps language code to desired engine code
+                            for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
+   */
   constructor ({engine = null, url = null}) {
     super();
-    this['lat'] = data;
-    this['grc'] = data$1;
-    this['ara'] = data$2;
-    this.engineLookup = engine;
+    this.langToEngine = engine;
     this.url = url;
+    this.engineMap = new Map(([ data, data$1, data$2 ]).map((e) => { return [ e.engine, e ] }));
     return this
   }
 
+  getEngineLanguageMap (lang) {
+    return this.engineMap.get(this.langToEngine[lang])
+  }
+
   prepareRequestUrl (lang, word) {
-    let engine = this.engineLookup[lang];
+    let engine = this.langToEngine[lang];
     let url = this.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang);
     return url
   }
@@ -1454,6 +1463,7 @@ class TuftsAdapter extends BaseAdapter {
     for (let lexeme of annotationBody) {
             // Get importer based on the language
       let language = lexeme.rest.entry.dict.hdwd.lang;
+      let mappingData = this.getEngineLanguageMap(language);
       let lemma = new Lemma(lexeme.rest.entry.dict.hdwd.$, language);
       let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : '';
 
@@ -1464,7 +1474,7 @@ class TuftsAdapter extends BaseAdapter {
         inflectionsJSON = [inflectionsJSON];
       }
       for (let inflectionJSON of inflectionsJSON) {
-        let inflection = new Inflection(inflectionJSON.term.stem.$, this[language].language.toCode());
+        let inflection = new Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode());
         if (inflectionJSON.term.suff) {
                     // Set suffix if provided by a morphological analyzer
           inflection.suffix = inflectionJSON.term.suff.$;
@@ -1475,43 +1485,43 @@ class TuftsAdapter extends BaseAdapter {
         }
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
-          inflection.feature = this[language][Feature.types.part].get(inflectionJSON.pofs.$);
+          inflection.feature = mappingData[Feature.types.part].get(inflectionJSON.pofs.$);
         }
 
         if (inflectionJSON.case) {
-          inflection.feature = this[language][Feature.types.grmCase].get(inflectionJSON.case.$);
+          inflection.feature = mappingData[Feature.types.grmCase].get(inflectionJSON.case.$);
         }
 
         if (inflectionJSON.decl) {
-          inflection.feature = this[language][Feature.types.declension].get(inflectionJSON.decl.$);
+          inflection.feature = mappingData[Feature.types.declension].get(inflectionJSON.decl.$);
         }
 
         if (inflectionJSON.num) {
-          inflection.feature = this[language][Feature.types.number].get(inflectionJSON.num.$);
+          inflection.feature = mappingData[Feature.types.number].get(inflectionJSON.num.$);
         }
 
         if (inflectionJSON.gend) {
-          inflection.feature = this[language][Feature.types.gender].get(inflectionJSON.gend.$);
+          inflection.feature = mappingData[Feature.types.gender].get(inflectionJSON.gend.$);
         }
 
         if (inflectionJSON.conj) {
-          inflection.feature = this[language][Feature.types.conjugation].get(inflectionJSON.conj.$);
+          inflection.feature = mappingData[Feature.types.conjugation].get(inflectionJSON.conj.$);
         }
 
         if (inflectionJSON.tense) {
-          inflection.feature = this[language][Feature.types.tense].get(inflectionJSON.tense.$);
+          inflection.feature = mappingData[Feature.types.tense].get(inflectionJSON.tense.$);
         }
 
         if (inflectionJSON.voice) {
-          inflection.feature = this[language][Feature.types.voice].get(inflectionJSON.voice.$);
+          inflection.feature = mappingData[Feature.types.voice].get(inflectionJSON.voice.$);
         }
 
         if (inflectionJSON.mood) {
-          inflection.feature = this[language][Feature.types.mood].get(inflectionJSON.mood.$);
+          inflection.feature = mappingData[Feature.types.mood].get(inflectionJSON.mood.$);
         }
 
         if (inflectionJSON.pers) {
-          inflection.feature = this[language][Feature.types.person].get(inflectionJSON.pers.$);
+          inflection.feature = mappingData[Feature.types.person].get(inflectionJSON.pers.$);
         }
 
         inflections.push(inflection);

@@ -4,37 +4,41 @@ import TuftsAdapter from '../src/adapter.js'
 import * as Models from 'alpheios-data-models'
 
 describe('TuftsAdapter object', () => {
-  let adapter, mare
-
   beforeAll(() => {
-    adapter = new TuftsAdapter({})
-    mare = require('../src/lib/lang/data/latin_noun_adj_mare.json')
+  })
+
+  test('get correct engine for language', () => {
+    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc', lat: 'whitakerLat' }, url: null })
+    let data = adapter.getEngineLanguageMap('grc')
+    expect(data.engine).toEqual('morpheusgrc')
   })
 
   test('default values are returned', () => {
-    let grc = Models.Constants.STR_LANG_CODE_GRC
-    let retrieved = adapter[grc][Models.Feature.types.grmCase].get('nominative')
-    let def = new Models.Feature('nominative', Models.Feature.types.grmCase, grc)
+    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
+    let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.grmCase].get('nominative')
+    let def = new Models.Feature('nominative', Models.Feature.types.grmCase, 'grc')
     expect(retrieved).toEqual(def)
   })
 
   test('mapped values are returned', () => {
-    let grc = Models.Constants.STR_LANG_CODE_GRC
-    let retrieved = adapter[grc][Models.Feature.types.gender].get('masculine feminine')
-    let def = [ new Models.Feature(Models.Constants.GEND_MASCULINE, Models.Feature.types.gender, grc),
-      new Models.Feature(Models.Constants.GEND_FEMININE, Models.Feature.types.gender, grc)
+    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
+    let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.gender].get('masculine feminine')
+    let def = [ new Models.Feature(Models.Constants.GEND_MASCULINE, Models.Feature.types.gender, 'grc'),
+      new Models.Feature(Models.Constants.GEND_FEMININE, Models.Feature.types.gender, 'grc')
     ]
     expect(retrieved).toEqual(def)
   })
 
   test('unmapped values with no defaults throws an error', () => {
-    let grc = Models.Constants.STR_LANG_CODE_GRC
+    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
     expect(() => {
-      let retrieved = adapter[grc][Models.Feature.types.person].get('1') // eslint-disable-line no-unused-vars
+      let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.person].get('1') // eslint-disable-line no-unused-vars
     }).toThrowError(/unknown value/)
   })
 
   test('we adapted mare properly', () => {
+    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc', lat: 'whitakerLat' }, url: null })
+    let mare = require('../src/lib/engine/data/latin_noun_adj_mare.json')
     let homonym = adapter.transform(mare)
     console.log(Array.isArray(homonym.lexemes))
     expect(homonym.lexemes.length).toEqual(3)
