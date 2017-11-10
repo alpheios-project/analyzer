@@ -4,6 +4,7 @@ import * as Models from 'alpheios-data-models'
 let data = new ImportData(new Models.ArabicLanguageModel())
 let types = Models.Feature.types
 
-data.addFeature(Models.Feature.types.gender).importer
-    .map('masculine feminine', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine])
+data.addFeature(Models.Feature.types.part).importer
+    .map('proper noun', [data.language.features[types.part][Models.Constants.POFS_NOUN]])
+
 export default data

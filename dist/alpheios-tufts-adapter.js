@@ -65,6 +65,7 @@ class BaseAdapter {
   }
 }
 
+/* eslint-disable no-unused-vars */
 const LANG_UNIT_WORD = Symbol('word')
 
 const LANG_DIR_LTR = Symbol('ltr')
@@ -79,106 +80,84 @@ const STR_LANG_CODE_GRC = 'grc'
 const STR_LANG_CODE_ARA = 'ara'
 const STR_LANG_CODE_AR = 'ar'
 
-/**
- * @class  LanguageModel is the base class for language-specific behavior
- */
-class LanguageModel {
-   /**
-   */
-  constructor () {
-    this.sourceLanguage = null
-    this.contextForward = 0
-    this.context_backward = 0
-    this.direction = LANG_DIR_LTR
-    this.baseUnit = LANG_UNIT_WORD
-    this.codes = []
-    this.features = {} // Grammatical feature types (definitions) within supported by a specific language.
-  }
+// parts of speech
+const POFS_ADJECTIVE = 'adjective'
+const POFS_ADVERB = 'adverb'
+const POFS_ADVERBIAL = 'adverbial'
+const POFS_ARTICLE = 'article'
+const POFS_CONJUNCTION = 'conjunction'
+const POFS_EXCLAMATION = 'exclamation'
+const POFS_INTERJECTION = 'interjection'
+const POFS_NOUN = 'noun'
+const POFS_NUMERAL = 'numeral'
+const POFS_PARTICLE = 'particle'
+const POFS_PREFIX = 'prefix'
+const POFS_PREPOSITION = 'preposition'
+const POFS_PRONOUN = 'pronoun'
+const POFS_SUFFIX = 'suffix'
+const POFS_SUPINE = 'supine'
+const POFS_VERB = 'verb'
+const POFS_VERB_PARTICIPLE = 'verb participle'
+// gender
+const GEND_MASCULINE = 'masculine'
+const GEND_FEMININE = 'feminine'
+const GEND_NEUTER = 'neuter'
 
-  /**
-   * Handler which can be used as the contextHander.
-   * It uses language-specific configuration to identify
-   * the elements from the alph-text popup which should produce links
-   * to the language-specific grammar.
-   * @see #contextHandler
-   */
-  grammarContext (doc) {
-      // used to bind a click handler on the .alph-entry items in the
-      // popup which retrieved the context attribute from the clicked
-      // term and used that to construct a link and open the grammar
-      // at the apporopriate place.
-      // var links = this.getGrammarLinks();
+// Polish gender types
 
-      // for (var link_name in links)
-      // {
-      //   if (links.hasOwnProperty(link_name))
-      //    {
-              // Alph.$(".alph-entry ." + link_name,a_doc).bind('click',link_name,
-              //   function(a_e)
-              //    {
-                        // build target inside grammar
-                        // var target = a_e.data;
-                        // var rngContext = Alph.$(this).attr("context");
-                        // if (rngContext != null)
-                        // {
-                        //  target += "-" + rngContext.split(/-/)[0];
-                        // }
-                        // myobj.openGrammar(a_e.originaEvent,this,target);
-               //   }
-              // );
-       //   }
-      // }
-  }
+// comparative
 
-  /**
-   * Check to see if this language tool can produce an inflection table display
-   * for the current node
-   */
-  canInflect (node) {
-    return false
-  }
+// case
 
-  /**
-   * Check to see if the supplied language code is supported by this tool
-   * @param {string} code the language code
-   * @returns true if supported false if not
-   * @type Boolean
-   */
-  static supportsLanguage (code) {
-    return this.codes.includes[code]
-  }
+const CASE_ABLATIVE = 'ablative'
 
-  /**
-   * Return a normalized version of a word which can be used to compare the word for equality
-   * @param {string} word the source word
-   * @returns the normalized form of the word (default version just returns the same word,
-   *          override in language-specific subclass)
-   * @type String
-   */
-  normalizeWord (word) {
-    return word
-  }
+const CASE_ACCUSATIVE = 'accusative'
 
-  /**
-   * Get a list of valid puncutation for this language
-   * @returns {String} a string containing valid puncutation symbols
-   */
-  getPunctuation () {
-    return ".,;:!?'\"(){}\\[\\]<>/\\\u00A0\u2010\u2011\u2012\u2013\u2014\u2015\u2018\u2019\u201C\u201D\u0387\u00B7\n\r"
-  }
+const CASE_DATIVE = 'dative'
 
-  toString () {
-    return String(this.sourceLanguage)
-  }
+const CASE_GENITIVE = 'genitive'
 
-  isEqual (model) {
-    return this.sourceLanguage === model.sourceLanguage
-  }
+const CASE_LOCATIVE = 'locative'
 
-  toCode () {
-    return null
-  }
-}
+const CASE_NOMINATIVE = 'nominative'
+
+const CASE_VOCATIVE = 'vocative'
+
+const MOOD_IMPERATIVE = 'imperative'
+const MOOD_INDICATIVE = 'indicative'
+
+const MOOD_OPTATIVE = 'optative'
+
+const MOOD_SUBJUNCTIVE = 'subjunctive'
+
+const NUM_SINGULAR = 'singular'
+const NUM_PLURAL = 'plural'
+const NUM_DUAL = 'dual'
+
+const ORD_1ST = '1st'
+const ORD_2ND = '2nd'
+const ORD_3RD = '3rd'
+const ORD_4TH = '4th'
+const ORD_5TH = '5th'
+
+const TENSE_AORIST = 'aorist'
+const TENSE_FUTURE = 'future'
+const TENSE_FUTURE_PERFECT = 'future perfect'
+const TENSE_IMPERFECT = 'imperfect'
+
+const TENSE_PERFECT = 'perfect'
+const TENSE_PLUPERFECT = 'pluperfect'
+const TENSE_PRESENT = 'present'
+
+const VOICE_ACTIVE = 'active'
+const VOICE_PASSIVE = 'passive'
+const VOICE_MEDIOPASSIVE = 'mediopassive'
+
+const VOICE_MIDDLE = 'middle'
+
+const TYPE_IRREGULAR = 'irregular'
+const TYPE_REGULAR = 'regular'
+/* eslit-enable no-unused-vars */
 
 /**
  * Wrapper class for a (grammatical, usually) feature, such as part of speech or declension. Keeps both value and type information.
@@ -234,6 +213,7 @@ Feature.types = {
   gender: 'gender',
   type: 'type',
   conjugation: 'conjugation',
+  comparison: 'comparison',
   tense: 'tense',
   voice: 'voice',
   mood: 'mood',
@@ -243,6 +223,15 @@ Feature.types = {
   source: 'source', // Source of word definition
   footnote: 'footnote', // A footnote for a word's ending
   dialect: 'dialect', // a dialect iderntifier
+  note: 'note', // a general note
+  pronunciation: 'pronunciation',
+  area: 'area',
+  geo: 'geo', // geographical data
+  kind: 'kind', // verb kind informatin
+  derivtype: 'derivtype',
+  stemtype: 'stemtype',
+  morph: 'morph', // general morphological information
+  var: 'var', // variance?
   isAllowed (value) {
     let v = `${value}`
     return Object.values(this).includes(v)
@@ -497,6 +486,136 @@ class Importer {
 }
 
 /**
+ * @class  LanguageModel is the base class for language-specific behavior
+ */
+class LanguageModel {
+   /**
+   */
+  constructor () {
+    this.sourceLanguage = null
+    this.contextForward = 0
+    this.context_backward = 0
+    this.direction = LANG_DIR_LTR
+    this.baseUnit = LANG_UNIT_WORD
+    this.codes = []
+  }
+
+  _initializeFeatures () {
+    let features = {}
+    let code = this.toCode()
+    features[Feature.types.part] = new FeatureType(Feature.types.part,
+      [ POFS_ADVERB,
+        POFS_ADVERBIAL,
+        POFS_ADJECTIVE,
+        POFS_ARTICLE,
+        POFS_CONJUNCTION,
+        POFS_EXCLAMATION,
+        POFS_INTERJECTION,
+        POFS_NOUN,
+        POFS_NUMERAL,
+        POFS_PARTICLE,
+        POFS_PREFIX,
+        POFS_PREPOSITION,
+        POFS_PRONOUN,
+        POFS_SUFFIX,
+        POFS_SUPINE,
+        POFS_VERB,
+        POFS_VERB_PARTICIPLE ], code)
+    features[Feature.types.gender] = new FeatureType(Feature.types.gender,
+      [ GEND_MASCULINE, GEND_FEMININE, GEND_NEUTER ], code)
+    features[Feature.types.type] = new FeatureType(Feature.types.type,
+      [TYPE_REGULAR, TYPE_IRREGULAR], code)
+    features[Feature.types.person] = new FeatureType(Feature.types.person,
+      [ORD_1ST, ORD_2ND, ORD_3RD], code)
+    return features
+  }
+
+  /**
+   * Handler which can be used as the contextHander.
+   * It uses language-specific configuration to identify
+   * the elements from the alph-text popup which should produce links
+   * to the language-specific grammar.
+   * @see #contextHandler
+   */
+  grammarContext (doc) {
+      // used to bind a click handler on the .alph-entry items in the
+      // popup which retrieved the context attribute from the clicked
+      // term and used that to construct a link and open the grammar
+      // at the apporopriate place.
+      // var links = this.getGrammarLinks();
+
+      // for (var link_name in links)
+      // {
+      //   if (links.hasOwnProperty(link_name))
+      //    {
+              // Alph.$(".alph-entry ." + link_name,a_doc).bind('click',link_name,
+              //   function(a_e)
+              //    {
+                        // build target inside grammar
+                        // var target = a_e.data;
+                        // var rngContext = Alph.$(this).attr("context");
+                        // if (rngContext != null)
+                        // {
+                        //  target += "-" + rngContext.split(/-/)[0];
+                        // }
+                        // myobj.openGrammar(a_e.originaEvent,this,target);
+               //   }
+              // );
+       //   }
+      // }
+  }
+
+  /**
+   * Check to see if this language tool can produce an inflection table display
+   * for the current node
+   */
+  canInflect (node) {
+    return false
+  }
+
+  /**
+   * Check to see if the supplied language code is supported by this tool
+   * @param {string} code the language code
+   * @returns true if supported false if not
+   * @type Boolean
+   */
+  static supportsLanguage (code) {
+    return this.codes.includes[code]
+  }
+
+  /**
+   * Return a normalized version of a word which can be used to compare the word for equality
+   * @param {string} word the source word
+   * @returns the normalized form of the word (default version just returns the same word,
+   *          override in language-specific subclass)
+   * @type String
+   */
+  normalizeWord (word) {
+    return word
+  }
+
+  /**
+   * Get a list of valid puncutation for this language
+   * @returns {String} a string containing valid puncutation symbols
+   */
+  getPunctuation () {
+    return ".,;:!?'\"(){}\\[\\]<>/\\\u00A0\u2010\u2011\u2012\u2013\u2014\u2015\u2018\u2019\u201C\u201D\u0387\u00B7\n\r"
+  }
+
+  toString () {
+    return String(this.sourceLanguage)
+  }
+
+  isEqual (model) {
+    return this.sourceLanguage === model.sourceLanguage
+  }
+
+  toCode () {
+    return null
+  }
+}
+
+/**
  * @class  LatinLanguageModel is the lass for Latin specific behavior
  */
 class LatinLanguageModel extends LanguageModel {
@@ -514,19 +633,36 @@ class LatinLanguageModel extends LanguageModel {
   }
 
   _initializeFeatures () {
-    let features = {}
+    let features = super._initializeFeatures()
     let code = this.toCode()
-    features[Feature.types.part] = new FeatureType(Feature.types.part, ['noun', 'adjective', 'verb'], code)
-    features[Feature.types.number] = new FeatureType(Feature.types.number, ['singular', 'plural'], code)
-    features[Feature.types.grmCase] = new FeatureType(Feature.types.grmCase, ['nominative', 'genitive', 'dative', 'accusative', 'ablative', 'locative', 'vocative'], code)
-    features[Feature.types.declension] = new FeatureType(Feature.types.declension, ['first', 'second', 'third', 'fourth', 'fifth'], code)
-    features[Feature.types.gender] = new FeatureType(Feature.types.gender, ['masculine', 'feminine', 'neuter'], code)
-    features[Feature.types.type] = new FeatureType(Feature.types.type, ['regular', 'irregular'], code)
-    features[Feature.types.tense] = new FeatureType(Feature.types.tense, ['present', 'imperfect', 'future', 'perfect', 'pluperfect', 'future perfect'], code)
-    features[Feature.types.voice] = new FeatureType(Feature.types.voice, ['passive', 'active'], code)
-    features[Feature.types.mood] = new FeatureType(Feature.types.mood, ['indicative', 'subjunctive'], code)
-    features[Feature.types.person] = new FeatureType(Feature.types.person, ['first', 'second', 'third'], code)
-    features[Feature.types.conjugation] = new FeatureType(Feature.types.conjugation, ['first', 'second', 'third', 'fourth'], code)
+    features[Feature.types.number] = new FeatureType(Feature.types.number, [NUM_SINGULAR, NUM_PLURAL], code)
+    features[Feature.types.grmCase] = new FeatureType(Feature.types.grmCase,
+      [ CASE_NOMINATIVE,
+        CASE_GENITIVE,
+        CASE_DATIVE,
+        CASE_ACCUSATIVE,
+        CASE_ABLATIVE,
+        CASE_LOCATIVE,
+        CASE_VOCATIVE
+      ], code)
+    features[Feature.types.declension] = new FeatureType(Feature.types.declension,
+      [ ORD_1ST, ORD_2ND, ORD_3RD, ORD_4TH, ORD_5TH ], code)
+    features[Feature.types.tense] = new FeatureType(Feature.types.tense,
+      [ TENSE_PRESENT,
+        TENSE_IMPERFECT,
+        TENSE_FUTURE,
+        TENSE_PERFECT,
+        TENSE_PLUPERFECT,
+        TENSE_FUTURE_PERFECT
+      ], code)
+    features[Feature.types.voice] = new FeatureType(Feature.types.voice, [VOICE_PASSIVE, VOICE_ACTIVE], code)
+    features[Feature.types.mood] = new FeatureType(Feature.types.mood, [MOOD_INDICATIVE, MOOD_SUBJUNCTIVE], code)
+    features[Feature.types.conjugation] = new FeatureType(Feature.types.conjugation,
+      [ ORD_1ST,
+        ORD_2ND,
+        ORD_3RD,
+        ORD_4TH
+      ], code)
     return features
   }
 
@@ -581,18 +717,40 @@ class GreekLanguageModel extends LanguageModel {
   }
 
   _initializeFeatures () {
-    let features = {}
+    let features = super._initializeFeatures()
     let code = this.toCode()
-    features[Feature.types.part] = new FeatureType(Feature.types.part, ['noun', 'adjective', 'verb', 'pronoun', 'article', 'numeral', 'conjunction', 'preoposition', 'interjection'], code)
-    features[Feature.types.number] = new FeatureType(Feature.types.number, ['singular', 'plural', 'dual'], code)
-    features[Feature.types.grmCase] = new FeatureType(Feature.types.grmCase, ['nominative', 'genitive', 'dative', 'accusative', 'vocative'], code)
-    features[Feature.types.declension] = new FeatureType(Feature.types.declension, ['first', 'second', 'third'], code)
-    features[Feature.types.gender] = new FeatureType(Feature.types.gender, ['masculine', 'feminine', 'neuter'], code)
-    features[Feature.types.type] = new FeatureType(Feature.types.type, ['regular', 'irregular'], code)
-    features[Feature.types.tense] = new FeatureType(Feature.types.tense, ['present', 'future', 'imperfect', 'perfect', 'pluperfect', 'future perfect', 'aorist'], code)
-    features[Feature.types.voice] = new FeatureType(Feature.types.voice, ['passive', 'active', 'mediopassive', 'middle'], code)
-    features[Feature.types.mood] = new FeatureType(Feature.types.mood, ['indicative', 'subjunctive', 'optative', 'imperative'], code)
-    features[Feature.types.person] = new FeatureType(Feature.types.person, ['first', 'second', 'third'], code)
+    features[Feature.types.number] = new FeatureType(Feature.types.number, [NUM_SINGULAR, NUM_PLURAL, NUM_DUAL], code)
+    features[Feature.types.grmCase] = new FeatureType(Feature.types.grmCase,
+      [ CASE_NOMINATIVE,
+        CASE_GENITIVE,
+        CASE_DATIVE,
+        CASE_ACCUSATIVE,
+        CASE_VOCATIVE
+      ], code)
+    features[Feature.types.declension] = new FeatureType(Feature.types.declension,
+      [ ORD_1ST, ORD_2ND, ORD_3RD ], code)
+    features[Feature.types.tense] = new FeatureType(Feature.types.tense,
+      [ TENSE_PRESENT,
+        TENSE_IMPERFECT,
+        TENSE_FUTURE,
+        TENSE_PERFECT,
+        TENSE_PLUPERFECT,
+        TENSE_FUTURE_PERFECT,
+        TENSE_AORIST
+      ], code)
+    features[Feature.types.voice] = new FeatureType(Feature.types.voice,
+      [ VOICE_PASSIVE,
+        VOICE_ACTIVE,
+        VOICE_MEDIOPASSIVE,
+        VOICE_MIDDLE
+      ], code)
+    features[Feature.types.mood] = new FeatureType(Feature.types.mood,
+      [ MOOD_INDICATIVE,
+        MOOD_SUBJUNCTIVE,
+        MOOD_OPTATIVE,
+        MOOD_IMPERATIVE
+      ], code)
+    // TODO full list of greek dialects
     features[Feature.types.dialect] = new FeatureType(Feature.types.dialect, ['attic', 'epic', 'doric'], code)
     return features
   }
@@ -644,12 +802,11 @@ class ArabicLanguageModel extends LanguageModel {
     this.direction = LANG_DIR_RTL
     this.baseUnit = LANG_UNIT_WORD
     this.languageCodes = [STR_LANG_CODE_ARA, STR_LANG_CODE_AR]
-    this.features = this._initializeFeatures()
+    this._initializeFeatures()
   }
 
   _initializeFeatures () {
-    let features = {}
-    return features
+    this.features = super._initializeFeatures()
   }
 
   toCode () {
@@ -1064,64 +1221,23 @@ data.addFeature(typeName).add(providerValueName, LibValueName);
 (functions are chainable)
 Types and values that are unknown (undefined) will be skipped during parsing.
  */
-data.addFeature(Feature.types.part).importer
-    .map('noun', data.language.features[types.part].noun)
-    .map('adjective', data.language.features[types.part].adjective)
-    .map('verb', data.language.features[types.part].verb)
 
-data.addFeature(Feature.types.grmCase).importer
-    .map('nominative', data.language.features[types.grmCase].nominative)
-    .map('genitive', data.language.features[types.grmCase].genitive)
-    .map('dative', data.language.features[types.grmCase].dative)
-    .map('accusative', data.language.features[types.grmCase].accusative)
-    .map('ablative', data.language.features[types.grmCase].ablative)
-    .map('locative', data.language.features[types.grmCase].locative)
-    .map('vocative', data.language.features[types.grmCase].vocative)
-
-data.addFeature(Feature.types.declension).importer
-    .map('1st', data.language.features[types.declension].first)
-    .map('2nd', data.language.features[types.declension].second)
-    .map('3rd', data.language.features[types.declension].third)
-    .map('4th', data.language.features[types.declension].fourth)
-    .map('5th', data.language.features[types.declension].fifth)
-
-data.addFeature(Feature.types.number).importer
-    .map('singular', data.language.features[types.number].singular)
-    .map('plural', data.language.features[types.number].plural)
+ // TODO  - per inflections.xsd
+ // Whitakers Words uses packon and tackon in POFS, not sure how
 
 data.addFeature(Feature.types.gender).importer
-    .map('masculine', data.language.features[types.gender].masculine)
-    .map('feminine', data.language.features[types.gender].feminine)
-    .map('neuter', data.language.features[types.gender].neuter)
-    .map('common', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine])
-    .map('all', [data.language.features[types.gender].masculine, data.language.features[types.gender].feminine, data.language.features[types.gender].neuter])
-
-data.addFeature(Feature.types.conjugation).importer
-    .map('1st', data.language.features[types.conjugation].first)
-    .map('2nd', data.language.features[types.conjugation].second)
-    .map('3rd', data.language.features[types.conjugation].third)
-    .map('4th', data.language.features[types.conjugation].fourth)
+    .map('common',
+  [ data.language.features[types.gender][GEND_MASCULINE],
+    data.language.features[types.gender][GEND_FEMININE]
+  ])
+    .map('all',
+  [ data.language.features[types.gender][GEND_MASCULINE],
+    data.language.features[types.gender][GEND_FEMININE],
+    data.language.features[types.gender][GEND_NEUTER]
+  ])
 
 data.addFeature(Feature.types.tense).importer
-    .map('present', data.language.features[types.tense].present)
-    .map('imperfect', data.language.features[types.tense].imperfect)
-    .map('future', data.language.features[types.tense].future)
-    .map('perfect', data.language.features[types.tense].perfect)
-    .map('pluperfect', data.language.features[types.tense].pluperfect)
-    .map('future_perfect', data.language.features[types.tense]['future perfect'])
-
-data.addFeature(Feature.types.voice).importer
-    .map('active', data.language.features[types.voice].active)
-    .map('passive', data.language.features[types.voice].passive)
-
-data.addFeature(Feature.types.mood).importer
-    .map('indicative', data.language.features[types.mood].indicative)
-    .map('subjunctive', data.language.features[types.mood].subjunctive)
-
-data.addFeature(Feature.types.person).importer
-    .map('1st', data.language.features[types.person].first)
-    .map('2nd', data.language.features[types.person].second)
-    .map('3rd', data.language.features[types.person].third)
+    .map('future_perfect', data.language.features[types.tense][TENSE_FUTURE_PERFECT])
 
 let data$1 = new ImportData(new GreekLanguageModel())
 let types$1 = Feature.types
@@ -1133,20 +1249,24 @@ data.addFeature(typeName).add(providerValueName, LibValueName);
 (functions are chainable)
 Types and values that are unknown (undefined) will be skipped during parsing.
  */
-data$1.addFeature(Feature.types.declension).importer
-    .map('1st', data$1.language.features[types$1.declension].first)
-    .map('2nd', data$1.language.features[types$1.declension].second)
-    .map('3rd', data$1.language.features[types$1.declension].third)
-
-data$1.addFeature(Feature.types.person).importer
-    .map('1st', data$1.language.features[types$1.person].first)
-    .map('2nd', data$1.language.features[types$1.person].second)
-    .map('3rd', data$1.language.features[types$1.person].third)
 
 data$1.addFeature(Feature.types.gender).importer
-    .map('masculine feminine', [data$1.language.features[types$1.gender].masculine, data$1.language.features[types$1.gender].feminine])
+    .map('masculine feminine',
+  [ data$1.language.features[types$1.gender][GEND_MASCULINE],
+    data$1.language.features[types$1.gender][GEND_FEMININE]
+  ])
+
+data$1.addFeature(Feature.types.declension).importer
+    .map('1st & 2nd',
+  [ data$1.language.features[types$1.gender][ORD_1ST],
+    data$1.language.features[types$1.gender][ORD_2ND]
+  ])
 
 let data$2 = new ImportData(new ArabicLanguageModel())
+let types$2 = Feature.types
+
+data$2.addFeature(Feature.types.part).importer
+    .map('proper noun', [data$2.language.features[types$2.part][POFS_NOUN]])
 
 var Cupidinibus = '{\n  "RDF": {\n    "Annotation": {\n      "about": "urn:TuftsMorphologyService:cupidinibus:whitakerLat",\n      "creator": {\n        "Agent": {\n          "about": "net.alpheios:tools:wordsxml.v1"\n        }\n      },\n      "created": {\n        "$": "2017-08-10T23:15:29.185581"\n      },\n      "hasTarget": {\n        "Description": {\n          "about": "urn:word:cupidinibus"\n        }\n      },\n      "title": {},\n      "hasBody": [\n        {\n          "resource": "urn:uuid:idm140578094883136"\n        },\n        {\n          "resource": "urn:uuid:idm140578158026160"\n        }\n      ],\n      "Body": [\n        {\n          "about": "urn:uuid:idm140578094883136",\n          "type": {\n            "resource": "cnt:ContentAsXML"\n          },\n          "rest": {\n            "entry": {\n              "infl": [\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 2,\n                    "$": "locative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 5,\n                    "$": "dative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 3,\n                    "$": "ablative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                }\n              ],\n              "dict": {\n                "hdwd": {\n                  "lang": "lat",\n                  "$": "Cupido, Cupidinis"\n                },\n                "pofs": {\n                  "order": 5,\n                  "$": "noun"\n                },\n                "decl": {\n                  "$": "3rd"\n                },\n                "gend": {\n                  "$": "masculine"\n                },\n                "area": {\n                  "$": "religion"\n                },\n                "freq": {\n                  "order": 4,\n                  "$": "common"\n                },\n                "src": {\n                  "$": "Ox.Lat.Dict."\n                }\n              },\n              "mean": {\n                "$": "Cupid, son of Venus; personification of carnal desire;"\n              }\n            }\n          }\n        },\n        {\n          "about": "urn:uuid:idm140578158026160",\n          "type": {\n            "resource": "cnt:ContentAsXML"\n          },\n          "rest": {\n            "entry": {\n              "infl": [\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 2,\n                    "$": "locative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 5,\n                    "$": "dative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 3,\n                    "$": "ablative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                }\n              ],\n              "dict": {\n                "hdwd": {\n                  "lang": "lat",\n                  "$": "cupido, cupidinis"\n                },\n                "pofs": {\n                  "order": 5,\n                  "$": "noun"\n                },\n                "decl": {\n                  "$": "3rd"\n                },\n                "gend": {\n                  "$": "common"\n                },\n                "freq": {\n                  "order": 5,\n                  "$": "frequent"\n                },\n                "src": {\n                  "$": "Ox.Lat.Dict."\n                }\n              },\n              "mean": {\n                "$": "desire/love/wish/longing (passionate); lust; greed, appetite; desire for gain;"\n              }\n            }\n          }\n        }\n      ]\n    }\n  }\n}\n'
 
