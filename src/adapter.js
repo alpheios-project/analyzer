@@ -1,24 +1,31 @@
 import BaseAdapter from 'alpheios-morph-client'
-import TuftsLatinData from './lib/lang/latin'
+import Whitakers from './lib/engine/whitakers'
+import Morpheusgrc from './lib/engine/morpheusgrc'
+import Aramorph from './lib/engine/aramorph'
 import * as Models from 'alpheios-data-models'
-import WordTestData from './lib/lang/data/test-data'
+import WordTestData from './lib/engine/data/test-data'
 
 class TuftsAdapter extends BaseAdapter {
+  /**
+   * A Morph Client Adapter for the Tufts Morphology Service
+   * @constructor
+   * @param {object} engine an object which maps language code to desired engine code
+                            for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
+   */
   constructor ({engine = null, url = null}) {
     super()
-    let latinCode = TuftsLatinData.language.toCode()
-    this[latinCode] = TuftsLatinData
-      // this[Lib.languages.greek] = TuftsGreekData;
-      // this.langMap = new Map([['lat', TuftsLatinData]]);
-      // this.langMap = new Lib.Importer().map('lat', Lib.languages.latin).map('grc', Lib.languages.greek);
-    this.langMap = new Models.FeatureImporter().map('lat', latinCode)
-    this.engineLookup = engine
+    this.langToEngine = engine
     this.url = url
+    this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph ]).map((e) => { return [ e.engine, e ] }))
     return this
   }
 
+  getEngineLanguageMap (lang) {
+    return this.engineMap.get(this.langToEngine[lang])
+  }
+
   prepareRequestUrl (lang, word) {
-    let engine = this.engineLookup[lang]
+    let engine = this.langToEngine[lang]
     let url = this.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
     return url
   }
@@ -56,7 +63,8 @@ class TuftsAdapter extends BaseAdapter {
     }
     for (let lexeme of annotationBody) {
             // Get importer based on the language
-      let language = this.langMap.get(lexeme.rest.entry.dict.hdwd.lang)
+      let language = lexeme.rest.entry.dict.hdwd.lang
+      let mappingData = this.getEngineLanguageMap(language)
       let lemma = new Models.Lemma(lexeme.rest.entry.dict.hdwd.$, language)
       let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : ''
 
@@ -67,51 +75,54 @@ class TuftsAdapter extends BaseAdapter {
         inflectionsJSON = [inflectionsJSON]
       }
       for (let inflectionJSON of inflectionsJSON) {
-        let inflection = new Models.Inflection(inflectionJSON.term.stem.$, this[language].language.toCode())
+        let inflection = new Models.Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode())
         if (inflectionJSON.term.suff) {
                     // Set suffix if provided by a morphological analyzer
           inflection.suffix = inflectionJSON.term.suff.$
         }
 
+        if (inflectionJSON.xmpl) {
+          inflection.example = inflectionJSON.xmpl.$
+        }
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
-          inflection.feature = this[language][Models.Feature.types.part].get(inflectionJSON.pofs.$)
+          inflection.feature = mappingData[Models.Feature.types.part].get(inflectionJSON.pofs.$)
         }
 
         if (inflectionJSON.case) {
-          inflection.feature = this[language][Models.Feature.types.grmCase].get(inflectionJSON.case.$)
+          inflection.feature = mappingData[Models.Feature.types.grmCase].get(inflectionJSON.case.$)
         }
 
         if (inflectionJSON.decl) {
-          inflection.feature = this[language][Models.Feature.types.declension].get(inflectionJSON.decl.$)
+          inflection.feature = mappingData[Models.Feature.types.declension].get(inflectionJSON.decl.$)
         }
 
         if (inflectionJSON.num) {
-          inflection.feature = this[language][Models.Feature.types.number].get(inflectionJSON.num.$)
+          inflection.feature = mappingData[Models.Feature.types.number].get(inflectionJSON.num.$)
         }
 
         if (inflectionJSON.gend) {
-          inflection.feature = this[language][Models.Feature.types.gender].get(inflectionJSON.gend.$)
+          inflection.feature = mappingData[Models.Feature.types.gender].get(inflectionJSON.gend.$)
         }
 
         if (inflectionJSON.conj) {
-          inflection.feature = this[language][Models.Feature.types.conjugation].get(inflectionJSON.conj.$)
+          inflection.feature = mappingData[Models.Feature.types.conjugation].get(inflectionJSON.conj.$)
         }
 
         if (inflectionJSON.tense) {
-          inflection.feature = this[language][Models.Feature.types.tense].get(inflectionJSON.tense.$)
+          inflection.feature = mappingData[Models.Feature.types.tense].get(inflectionJSON.tense.$)
         }
 
         if (inflectionJSON.voice) {
-          inflection.feature = this[language][Models.Feature.types.voice].get(inflectionJSON.voice.$)
+          inflection.feature = mappingData[Models.Feature.types.voice].get(inflectionJSON.voice.$)
         }
 
         if (inflectionJSON.mood) {
-          inflection.feature = this[language][Models.Feature.types.mood].get(inflectionJSON.mood.$)
+          inflection.feature = mappingData[Models.Feature.types.mood].get(inflectionJSON.mood.$)
         }
 
         if (inflectionJSON.pers) {
-          inflection.feature = this[language][Models.Feature.types.person].get(inflectionJSON.pers.$)
+          inflection.feature = mappingData[Models.Feature.types.person].get(inflectionJSON.pers.$)
         }
 
         inflections.push(inflection)
@@ -121,17 +132,16 @@ class TuftsAdapter extends BaseAdapter {
     return new Models.Homonym(lexemes, targetWord)
   }
 
-    async getHomonym(lang, word) {
-      let jsonObj = await this.fetch(lang, word)
-      if (jsonObj) {
-        let homonym = this.transform(jsonObj, word)
-        return homonym
-      }
-      else {
+  async getHomonym (lang, word) {
+    let jsonObj = await this.fetch(lang, word)
+    if (jsonObj) {
+      let homonym = this.transform(jsonObj, word)
+      return homonym
+    } else {
         // No data found for this word
-        return undefined
-      }
+      return undefined
     }
+  }
 }
 
 export default TuftsAdapter

@@ -12,9 +12,15 @@ class ImportData {
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
      */
-  constructor (language) {
+  constructor (language, engine) {
     'use strict'
     this.language = language
+    this.engine = engine
+    // add all the features that the language supports so that we
+    // can return the default values if we don't need to import a mapping
+    for (let featureName of Object.keys(language.features)) {
+      this.addFeature(featureName)
+    }
   }
 
     /**
@@ -35,8 +41,13 @@ class ImportData {
     this[featureName].get = function get (providerValue) {
       'use strict'
       if (!this.importer.has(providerValue)) {
-        throw new Error("Skipping an unknown value '" +
+        // if the providerValue matches the model value return that
+        if (language.features[featureName][providerValue]) {
+          return language.features[featureName][providerValue]
+        } else {
+          throw new Error("Skipping an unknown value '" +
                     providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
+        }
       } else {
         return this.importer.get(providerValue)
       }

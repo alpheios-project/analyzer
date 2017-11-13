@@ -2,7 +2,7 @@
   "name": "alpheios-tufts-adapter",
   "version": "0.0.1",
   "description": "Alpheios Morph Client Adapter for Tufts Morphology Service",
-  "main": "src/adapter.js",
+  "main": "dist/alpheios-tufts-adapter.js",
   "directories": {
     "doc": "doc"
   },
