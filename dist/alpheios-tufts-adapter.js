@@ -73,12 +73,12 @@ class LanguageModel {
    /**
    */
    constructor() {
-     this.source_language = null;
-     this.context_forward = 0;
-     this.context_backward = 0;
+     this.sourceLanguage = null;
+     this.contextForward = 0;
+     this.contextBackward = 0;
      this.direction = LanguageModel.DIR_LTR;
-     this.base_unit = LanguageModel.UNIT_WORD;
-     this.language_codes = [];
+     this.baseUnit = LanguageModel.UNIT_WORD;
+     this.languageCodes = [];
      this.features = {}; // Grammatical feature types (definitions) within supported by a specific language.
    }
 
@@ -162,12 +162,12 @@ class LanguageModel {
 
   toString()
   {
-    return String(this.source_language);
+    return String(this.sourceLanguage);
   }
 
   isEqual(model)
   {
-    return this.source_language === model.source_language;
+    return this.sourceLanguage === model.sourceLanguage;
   }
 
   toCode() {
@@ -517,12 +517,12 @@ class LatinLanguageModel extends LanguageModel {
    */
    constructor() {
      super();
-     this.source_language = LanguageModel.LANG_LATIN;
-     this.context_forward = 0;
-     this.context_backward = 0;
+     this.sourceLanguage = LanguageModel.LANG_LATIN;
+     this.contextForward = 0;
+     this.contextBackward = 0;
      this.direction = LanguageModel.DIR_LTR;
-     this.base_unit = LanguageModel.UNIT_WORD;
-     this.language_codes = ['la','lat'];
+     this.baseUnit = LanguageModel.UNIT_WORD;
+     this.languageCodes = ['la','lat'];
      this.features = this._initializeFeatures();
    }
 
