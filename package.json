@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "standard --fix && jest",
-    "build": "rollup -c rollup.config.js",
+    "build": "standard --fix && rollup -c rollup.config.js",
     "lint": "standard --fix"
   },
   "repository": {

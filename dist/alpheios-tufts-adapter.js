@@ -67,19 +67,20 @@ class BaseAdapter {
 
 /* eslint-disable no-unused-vars */
 const LANG_UNIT_WORD = Symbol('word')
-
+const LANG_UNIT_CHAR = Symbol('char')
 const LANG_DIR_LTR = Symbol('ltr')
 const LANG_DIR_RTL = Symbol('rtl')
 const LANG_LATIN = Symbol('latin')
 const LANG_GREEK = Symbol('greek')
 const LANG_ARABIC = Symbol('arabic')
-
+const LANG_PERSIAN = Symbol('persian')
 const STR_LANG_CODE_LAT = 'lat'
 const STR_LANG_CODE_LA = 'la'
 const STR_LANG_CODE_GRC = 'grc'
 const STR_LANG_CODE_ARA = 'ara'
 const STR_LANG_CODE_AR = 'ar'
-
+const STR_LANG_CODE_FAR = 'far'
+const STR_LANG_CODE_PER = 'per'
 // parts of speech
 const POFS_ADJECTIVE = 'adjective'
 const POFS_ADVERB = 'adverb'
@@ -102,62 +103,368 @@ const POFS_VERB_PARTICIPLE = 'verb participle'
 const GEND_MASCULINE = 'masculine'
 const GEND_FEMININE = 'feminine'
 const GEND_NEUTER = 'neuter'
-
+const GEND_COMMON = 'common'
+const GEND_ANIMATE = 'animate'
+const GEND_INANIMATE = 'inanimate'
 // Polish gender types
-
+const GEND_PERSONAL_MASCULINE = 'personal masculine'
+const GEND_ANIMATE_MASCULINE = 'animate masculine'
+const GEND_INANIMATE_MASCULINE = 'inanimate masculine'
 // comparative
-
+const COMP_POSITIVE = 'positive'
+const COMP_COMPARITIVE = 'comparative'
+const COMP_SUPERLATIVE = 'superlative'
 // case
-
+const CASE_ABESSIVE = 'abessive'
 const CASE_ABLATIVE = 'ablative'
-
+const CASE_ABSOLUTIVE = 'absolutive'
 const CASE_ACCUSATIVE = 'accusative'
-
+const CASE_ADDIRECTIVE = 'addirective'
+const CASE_ADELATIVE = 'adelative'
+const CASE_ADESSIVE = 'adessive'
+const CASE_ADVERBIAL = 'adverbial'
+const CASE_ALLATIVE = 'allative'
+const CASE_ANTESSIVE = 'antessive'
+const CASE_APUDESSIVE = 'apudessive'
+const CASE_AVERSIVE = 'aversive'
+const CASE_BENEFACTIVE = 'benefactive'
+const CASE_CARITIVE = 'caritive'
+const CASE_CAUSAL = 'causal'
+const CASE_CAUSAL_FINAL = 'causal-final'
+const CASE_COMITATIVE = 'comitative'
 const CASE_DATIVE = 'dative'
-
+const CASE_DELATIVE = 'delative'
+const CASE_DIRECT = 'direct'
+const CASE_DISTRIBUTIVE = 'distributive'
+const CASE_DISTRIBUTIVE_TEMPORAL = 'distributive-temporal'
+const CASE_ELATIVE = 'elative'
+const CASE_ERGATIVE = 'ergative'
+const CASE_ESSIVE = 'essive'
+const CASE_ESSIVE_FORMAL = 'essive-formal'
+const CASE_ESSIVE_MODAL = 'essive-modal'
+const CASE_EQUATIVE = 'equative'
+const CASE_EVITATIVE = 'evitative'
+const CASE_EXESSIVE = 'exessive'
+const CASE_FINAL = 'final'
+const CASE_FORMAL = 'formal'
 const CASE_GENITIVE = 'genitive'
-
+const CASE_ILLATIVE = 'illative'
+const CASE_INELATIVE = 'inelative'
+const CASE_INESSIVE = 'inessive'
+const CASE_INSTRUCTIVE = 'instructive'
+const CASE_INSTRUMENTAL = 'instrumental'
+const CASE_INSTRUMENTAL_COMITATIVE = 'instrumental-comitative'
+const CASE_INTRANSITIVE = 'intransitive'
+const CASE_LATIVE = 'lative'
 const CASE_LOCATIVE = 'locative'
-
+const CASE_MODAL = 'modal'
+const CASE_MULTIPLICATIVE = 'multiplicative'
 const CASE_NOMINATIVE = 'nominative'
-
+const CASE_PARTITIVE = 'partitive'
+const CASE_PEGATIVE = 'pegative'
+const CASE_PERLATIVE = 'perlative'
+const CASE_POSSESSIVE = 'possessive'
+const CASE_POSTELATIVE = 'postelative'
+const CASE_POSTDIRECTIVE = 'postdirective'
+const CASE_POSTESSIVE = 'postessive'
+const CASE_POSTPOSITIONAL = 'postpositional'
+const CASE_PREPOSITIONAL = 'prepositional'
+const CASE_PRIVATIVE = 'privative'
+const CASE_PROLATIVE = 'prolative'
+const CASE_PROSECUTIVE = 'prosecutive'
+const CASE_PROXIMATIVE = 'proximative'
+const CASE_SEPARATIVE = 'separative'
+const CASE_SOCIATIVE = 'sociative'
+const CASE_SUBDIRECTIVE = 'subdirective'
+const CASE_SUBESSIVE = 'subessive'
+const CASE_SUBELATIVE = 'subelative'
+const CASE_SUBLATIVE = 'sublative'
+const CASE_SUPERDIRECTIVE = 'superdirective'
+const CASE_SUPERESSIVE = 'superessive'
+const CASE_SUPERLATIVE = 'superlative'
+const CASE_SUPPRESSIVE = 'suppressive'
+const CASE_TEMPORAL = 'temporal'
+const CASE_TERMINATIVE = 'terminative'
+const CASE_TRANSLATIVE = 'translative'
+const CASE_VIALIS = 'vialis'
 const CASE_VOCATIVE = 'vocative'
-
+const MOOD_ADMIRATIVE = 'admirative'
+const MOOD_COHORTATIVE = 'cohortative'
+const MOOD_CONDITIONAL = 'conditional'
+const MOOD_DECLARATIVE = 'declarative'
+const MOOD_DUBITATIVE = 'dubitative'
+const MOOD_ENERGETIC = 'energetic'
+const MOOD_EVENTIVE = 'eventive'
+const MOOD_GENERIC = 'generic'
+const MOOD_GERUNDIVE = 'gerundive'
+const MOOD_HYPOTHETICAL = 'hypothetical'
 const MOOD_IMPERATIVE = 'imperative'
 const MOOD_INDICATIVE = 'indicative'
-
+const MOOD_INFERENTIAL = 'inferential'
+const MOOD_INFINITIVE = 'infinitive'
+const MOOD_INTERROGATIVE = 'interrogative'
+const MOOD_JUSSIVE = 'jussive'
+const MOOD_NEGATIVE = 'negative'
 const MOOD_OPTATIVE = 'optative'
-
+const MOOD_PARTICIPLE = 'participle'
+const MOOD_PRESUMPTIVE = 'presumptive'
+const MOOD_RENARRATIVE = 'renarrative'
 const MOOD_SUBJUNCTIVE = 'subjunctive'
-
+const MOOD_SUPINE = 'supine'
 const NUM_SINGULAR = 'singular'
 const NUM_PLURAL = 'plural'
 const NUM_DUAL = 'dual'
-
+const NUM_TRIAL = 'trial'
+const NUM_PAUCAL = 'paucal'
+const NUM_SINGULATIVE = 'singulative'
+const NUM_COLLECTIVE = 'collective'
+const NUM_DISTRIBUTIVE_PLURAL = 'distributive plural'
+const NRL_CARDINAL = 'cardinal'
+const NRL_ORDINAL = 'ordinal'
+const NRL_DISTRIBUTIVE = 'distributive'
+const NURL_NUMERAL_ADVERB = 'numeral adverb'
 const ORD_1ST = '1st'
 const ORD_2ND = '2nd'
 const ORD_3RD = '3rd'
 const ORD_4TH = '4th'
 const ORD_5TH = '5th'
-
+const ORD_6TH = '6th'
+const ORD_7TH = '7th'
+const ORD_8TH = '8th'
+const ORD_9TH = '9th'
 const TENSE_AORIST = 'aorist'
 const TENSE_FUTURE = 'future'
 const TENSE_FUTURE_PERFECT = 'future perfect'
 const TENSE_IMPERFECT = 'imperfect'
-
+const TENSE_PAST_ABSOLUTE = 'past absolute'
 const TENSE_PERFECT = 'perfect'
 const TENSE_PLUPERFECT = 'pluperfect'
 const TENSE_PRESENT = 'present'
-
+const VKIND_TO_BE = 'to be'
+const VKIND_COMPOUNDS_OF_TO_BE = 'compounds of to be'
+const VKIND_TAKING_ABLATIVE = 'taking ablative'
+const VKIND_TAKING_DATIVE = 'taking dative'
+const VKIND_TAKING_GENITIVE = 'taking genitive'
+const VKIND_TRANSITIVE = 'transitive'
+const VKIND_INTRANSITIVE = 'intransitive'
+const VKIND_IMPERSONAL = 'impersonal'
+const VKIND_DEPONENT = 'deponent'
+const VKIND_SEMIDEPONENT = 'semideponent'
+const VKIND_PERFECT_DEFINITE = 'perfect definite'
 const VOICE_ACTIVE = 'active'
 const VOICE_PASSIVE = 'passive'
 const VOICE_MEDIOPASSIVE = 'mediopassive'
-
+const VOICE_IMPERSONAL_PASSIVE = 'impersonal passive'
 const VOICE_MIDDLE = 'middle'
-
+const VOICE_ANTIPASSIVE = 'antipassive'
+const VOICE_REFLEXIVE = 'reflexive'
+const VOICE_RECIPROCAL = 'reciprocal'
+const VOICE_CAUSATIVE = 'causative'
+const VOICE_ADJUTATIVE = 'adjutative'
+const VOICE_APPLICATIVE = 'applicative'
+const VOICE_CIRCUMSTANTIAL = 'circumstantial'
+const VOICE_DEPONENT = 'deponent'
 const TYPE_IRREGULAR = 'irregular'
 const TYPE_REGULAR = 'regular'
 /* eslit-enable no-unused-vars */
+
+var constants = Object.freeze({
+  LANG_UNIT_WORD: LANG_UNIT_WORD,
+  LANG_UNIT_CHAR: LANG_UNIT_CHAR,
+  LANG_DIR_LTR: LANG_DIR_LTR,
+  LANG_DIR_RTL: LANG_DIR_RTL,
+  LANG_LATIN: LANG_LATIN,
+  LANG_GREEK: LANG_GREEK,
+  LANG_ARABIC: LANG_ARABIC,
+  LANG_PERSIAN: LANG_PERSIAN,
+  STR_LANG_CODE_LAT: STR_LANG_CODE_LAT,
+  STR_LANG_CODE_LA: STR_LANG_CODE_LA,
+  STR_LANG_CODE_GRC: STR_LANG_CODE_GRC,
+  STR_LANG_CODE_ARA: STR_LANG_CODE_ARA,
+  STR_LANG_CODE_AR: STR_LANG_CODE_AR,
+  STR_LANG_CODE_FAR: STR_LANG_CODE_FAR,
+  STR_LANG_CODE_PER: STR_LANG_CODE_PER,
+  POFS_ADJECTIVE: POFS_ADJECTIVE,
+  POFS_ADVERB: POFS_ADVERB,
+  POFS_ADVERBIAL: POFS_ADVERBIAL,
+  POFS_ARTICLE: POFS_ARTICLE,
+  POFS_CONJUNCTION: POFS_CONJUNCTION,
+  POFS_EXCLAMATION: POFS_EXCLAMATION,
+  POFS_INTERJECTION: POFS_INTERJECTION,
+  POFS_NOUN: POFS_NOUN,
+  POFS_NUMERAL: POFS_NUMERAL,
+  POFS_PARTICLE: POFS_PARTICLE,
+  POFS_PREFIX: POFS_PREFIX,
+  POFS_PREPOSITION: POFS_PREPOSITION,
+  POFS_PRONOUN: POFS_PRONOUN,
+  POFS_SUFFIX: POFS_SUFFIX,
+  POFS_SUPINE: POFS_SUPINE,
+  POFS_VERB: POFS_VERB,
+  POFS_VERB_PARTICIPLE: POFS_VERB_PARTICIPLE,
+  GEND_MASCULINE: GEND_MASCULINE,
+  GEND_FEMININE: GEND_FEMININE,
+  GEND_NEUTER: GEND_NEUTER,
+  GEND_COMMON: GEND_COMMON,
+  GEND_ANIMATE: GEND_ANIMATE,
+  GEND_INANIMATE: GEND_INANIMATE,
+  GEND_PERSONAL_MASCULINE: GEND_PERSONAL_MASCULINE,
+  GEND_ANIMATE_MASCULINE: GEND_ANIMATE_MASCULINE,
+  GEND_INANIMATE_MASCULINE: GEND_INANIMATE_MASCULINE,
+  COMP_POSITIVE: COMP_POSITIVE,
+  COMP_COMPARITIVE: COMP_COMPARITIVE,
+  COMP_SUPERLATIVE: COMP_SUPERLATIVE,
+  CASE_ABESSIVE: CASE_ABESSIVE,
+  CASE_ABLATIVE: CASE_ABLATIVE,
+  CASE_ABSOLUTIVE: CASE_ABSOLUTIVE,
+  CASE_ACCUSATIVE: CASE_ACCUSATIVE,
+  CASE_ADDIRECTIVE: CASE_ADDIRECTIVE,
+  CASE_ADELATIVE: CASE_ADELATIVE,
+  CASE_ADESSIVE: CASE_ADESSIVE,
+  CASE_ADVERBIAL: CASE_ADVERBIAL,
+  CASE_ALLATIVE: CASE_ALLATIVE,
+  CASE_ANTESSIVE: CASE_ANTESSIVE,
+  CASE_APUDESSIVE: CASE_APUDESSIVE,
+  CASE_AVERSIVE: CASE_AVERSIVE,
+  CASE_BENEFACTIVE: CASE_BENEFACTIVE,
+  CASE_CARITIVE: CASE_CARITIVE,
+  CASE_CAUSAL: CASE_CAUSAL,
+  CASE_CAUSAL_FINAL: CASE_CAUSAL_FINAL,
+  CASE_COMITATIVE: CASE_COMITATIVE,
+  CASE_DATIVE: CASE_DATIVE,
+  CASE_DELATIVE: CASE_DELATIVE,
+  CASE_DIRECT: CASE_DIRECT,
+  CASE_DISTRIBUTIVE: CASE_DISTRIBUTIVE,
+  CASE_DISTRIBUTIVE_TEMPORAL: CASE_DISTRIBUTIVE_TEMPORAL,
+  CASE_ELATIVE: CASE_ELATIVE,
+  CASE_ERGATIVE: CASE_ERGATIVE,
+  CASE_ESSIVE: CASE_ESSIVE,
+  CASE_ESSIVE_FORMAL: CASE_ESSIVE_FORMAL,
+  CASE_ESSIVE_MODAL: CASE_ESSIVE_MODAL,
+  CASE_EQUATIVE: CASE_EQUATIVE,
+  CASE_EVITATIVE: CASE_EVITATIVE,
+  CASE_EXESSIVE: CASE_EXESSIVE,
+  CASE_FINAL: CASE_FINAL,
+  CASE_FORMAL: CASE_FORMAL,
+  CASE_GENITIVE: CASE_GENITIVE,
+  CASE_ILLATIVE: CASE_ILLATIVE,
+  CASE_INELATIVE: CASE_INELATIVE,
+  CASE_INESSIVE: CASE_INESSIVE,
+  CASE_INSTRUCTIVE: CASE_INSTRUCTIVE,
+  CASE_INSTRUMENTAL: CASE_INSTRUMENTAL,
+  CASE_INSTRUMENTAL_COMITATIVE: CASE_INSTRUMENTAL_COMITATIVE,
+  CASE_INTRANSITIVE: CASE_INTRANSITIVE,
+  CASE_LATIVE: CASE_LATIVE,
+  CASE_LOCATIVE: CASE_LOCATIVE,
+  CASE_MODAL: CASE_MODAL,
+  CASE_MULTIPLICATIVE: CASE_MULTIPLICATIVE,
+  CASE_NOMINATIVE: CASE_NOMINATIVE,
+  CASE_PARTITIVE: CASE_PARTITIVE,
+  CASE_PEGATIVE: CASE_PEGATIVE,
+  CASE_PERLATIVE: CASE_PERLATIVE,
+  CASE_POSSESSIVE: CASE_POSSESSIVE,
+  CASE_POSTELATIVE: CASE_POSTELATIVE,
+  CASE_POSTDIRECTIVE: CASE_POSTDIRECTIVE,
+  CASE_POSTESSIVE: CASE_POSTESSIVE,
+  CASE_POSTPOSITIONAL: CASE_POSTPOSITIONAL,
+  CASE_PREPOSITIONAL: CASE_PREPOSITIONAL,
+  CASE_PRIVATIVE: CASE_PRIVATIVE,
+  CASE_PROLATIVE: CASE_PROLATIVE,
+  CASE_PROSECUTIVE: CASE_PROSECUTIVE,
+  CASE_PROXIMATIVE: CASE_PROXIMATIVE,
+  CASE_SEPARATIVE: CASE_SEPARATIVE,
+  CASE_SOCIATIVE: CASE_SOCIATIVE,
+  CASE_SUBDIRECTIVE: CASE_SUBDIRECTIVE,
+  CASE_SUBESSIVE: CASE_SUBESSIVE,
+  CASE_SUBELATIVE: CASE_SUBELATIVE,
+  CASE_SUBLATIVE: CASE_SUBLATIVE,
+  CASE_SUPERDIRECTIVE: CASE_SUPERDIRECTIVE,
+  CASE_SUPERESSIVE: CASE_SUPERESSIVE,
+  CASE_SUPERLATIVE: CASE_SUPERLATIVE,
+  CASE_SUPPRESSIVE: CASE_SUPPRESSIVE,
+  CASE_TEMPORAL: CASE_TEMPORAL,
+  CASE_TERMINATIVE: CASE_TERMINATIVE,
+  CASE_TRANSLATIVE: CASE_TRANSLATIVE,
+  CASE_VIALIS: CASE_VIALIS,
+  CASE_VOCATIVE: CASE_VOCATIVE,
+  MOOD_ADMIRATIVE: MOOD_ADMIRATIVE,
+  MOOD_COHORTATIVE: MOOD_COHORTATIVE,
+  MOOD_CONDITIONAL: MOOD_CONDITIONAL,
+  MOOD_DECLARATIVE: MOOD_DECLARATIVE,
+  MOOD_DUBITATIVE: MOOD_DUBITATIVE,
+  MOOD_ENERGETIC: MOOD_ENERGETIC,
+  MOOD_EVENTIVE: MOOD_EVENTIVE,
+  MOOD_GENERIC: MOOD_GENERIC,
+  MOOD_GERUNDIVE: MOOD_GERUNDIVE,
+  MOOD_HYPOTHETICAL: MOOD_HYPOTHETICAL,
+  MOOD_IMPERATIVE: MOOD_IMPERATIVE,
+  MOOD_INDICATIVE: MOOD_INDICATIVE,
+  MOOD_INFERENTIAL: MOOD_INFERENTIAL,
+  MOOD_INFINITIVE: MOOD_INFINITIVE,
+  MOOD_INTERROGATIVE: MOOD_INTERROGATIVE,
+  MOOD_JUSSIVE: MOOD_JUSSIVE,
+  MOOD_NEGATIVE: MOOD_NEGATIVE,
+  MOOD_OPTATIVE: MOOD_OPTATIVE,
+  MOOD_PARTICIPLE: MOOD_PARTICIPLE,
+  MOOD_PRESUMPTIVE: MOOD_PRESUMPTIVE,
+  MOOD_RENARRATIVE: MOOD_RENARRATIVE,
+  MOOD_SUBJUNCTIVE: MOOD_SUBJUNCTIVE,
+  MOOD_SUPINE: MOOD_SUPINE,
+  NUM_SINGULAR: NUM_SINGULAR,
+  NUM_PLURAL: NUM_PLURAL,
+  NUM_DUAL: NUM_DUAL,
+  NUM_TRIAL: NUM_TRIAL,
+  NUM_PAUCAL: NUM_PAUCAL,
+  NUM_SINGULATIVE: NUM_SINGULATIVE,
+  NUM_COLLECTIVE: NUM_COLLECTIVE,
+  NUM_DISTRIBUTIVE_PLURAL: NUM_DISTRIBUTIVE_PLURAL,
+  NRL_CARDINAL: NRL_CARDINAL,
+  NRL_ORDINAL: NRL_ORDINAL,
+  NRL_DISTRIBUTIVE: NRL_DISTRIBUTIVE,
+  NURL_NUMERAL_ADVERB: NURL_NUMERAL_ADVERB,
+  ORD_1ST: ORD_1ST,
+  ORD_2ND: ORD_2ND,
+  ORD_3RD: ORD_3RD,
+  ORD_4TH: ORD_4TH,
+  ORD_5TH: ORD_5TH,
+  ORD_6TH: ORD_6TH,
+  ORD_7TH: ORD_7TH,
+  ORD_8TH: ORD_8TH,
+  ORD_9TH: ORD_9TH,
+  TENSE_AORIST: TENSE_AORIST,
+  TENSE_FUTURE: TENSE_FUTURE,
+  TENSE_FUTURE_PERFECT: TENSE_FUTURE_PERFECT,
+  TENSE_IMPERFECT: TENSE_IMPERFECT,
+  TENSE_PAST_ABSOLUTE: TENSE_PAST_ABSOLUTE,
+  TENSE_PERFECT: TENSE_PERFECT,
+  TENSE_PLUPERFECT: TENSE_PLUPERFECT,
+  TENSE_PRESENT: TENSE_PRESENT,
+  VKIND_TO_BE: VKIND_TO_BE,
+  VKIND_COMPOUNDS_OF_TO_BE: VKIND_COMPOUNDS_OF_TO_BE,
+  VKIND_TAKING_ABLATIVE: VKIND_TAKING_ABLATIVE,
+  VKIND_TAKING_DATIVE: VKIND_TAKING_DATIVE,
+  VKIND_TAKING_GENITIVE: VKIND_TAKING_GENITIVE,
+  VKIND_TRANSITIVE: VKIND_TRANSITIVE,
+  VKIND_INTRANSITIVE: VKIND_INTRANSITIVE,
+  VKIND_IMPERSONAL: VKIND_IMPERSONAL,
+  VKIND_DEPONENT: VKIND_DEPONENT,
+  VKIND_SEMIDEPONENT: VKIND_SEMIDEPONENT,
+  VKIND_PERFECT_DEFINITE: VKIND_PERFECT_DEFINITE,
+  VOICE_ACTIVE: VOICE_ACTIVE,
+  VOICE_PASSIVE: VOICE_PASSIVE,
+  VOICE_MEDIOPASSIVE: VOICE_MEDIOPASSIVE,
+  VOICE_IMPERSONAL_PASSIVE: VOICE_IMPERSONAL_PASSIVE,
+  VOICE_MIDDLE: VOICE_MIDDLE,
+  VOICE_ANTIPASSIVE: VOICE_ANTIPASSIVE,
+  VOICE_REFLEXIVE: VOICE_REFLEXIVE,
+  VOICE_RECIPROCAL: VOICE_RECIPROCAL,
+  VOICE_CAUSATIVE: VOICE_CAUSATIVE,
+  VOICE_ADJUTATIVE: VOICE_ADJUTATIVE,
+  VOICE_APPLICATIVE: VOICE_APPLICATIVE,
+  VOICE_CIRCUMSTANTIAL: VOICE_CIRCUMSTANTIAL,
+  VOICE_DEPONENT: VOICE_DEPONENT,
+  TYPE_IRREGULAR: TYPE_IRREGULAR,
+  TYPE_REGULAR: TYPE_REGULAR
+})
 
 /**
  * Wrapper class for a (grammatical, usually) feature, such as part of speech or declension. Keeps both value and type information.
@@ -238,6 +545,57 @@ Feature.types = {
   }
 }
 
+class FeatureImporter {
+  constructor (defaults = []) {
+    this.hash = {}
+    for (let value of defaults) {
+      this.map(value, value)
+    }
+    return this
+  }
+
+    /**
+     * Sets mapping between external imported value and one or more library standard values. If an importedValue
+     * is already in a hash table, old libraryValue will be overwritten with the new one.
+     * @param {string} importedValue - External value
+     * @param {Object | Object[] | string | string[]} libraryValue - Library standard value
+     */
+  map (importedValue, libraryValue) {
+    if (!importedValue) {
+      throw new Error('Imported value should not be empty.')
+    }
+
+    if (!libraryValue) {
+      throw new Error('Library value should not be empty.')
+    }
+
+    this.hash[importedValue] = libraryValue
+    return this
+  }
+
+    /**
+     * Checks if value is in a map.
+     * @param {string} importedValue - A value to test.
+     * @returns {boolean} - Tru if value is in a map, false otherwise.
+     */
+  has (importedValue) {
+    return this.hash.hasOwnProperty(importedValue)
+  }
+
+    /**
+     * Returns one or more library standard values that match an external value
+     * @param {string} importedValue - External value
+     * @returns {Object | string} One or more of library standard values
+     */
+  get (importedValue) {
+    if (this.has(importedValue)) {
+      return this.hash[importedValue]
+    } else {
+      throw new Error('A value "' + importedValue + '" is not found in the importer.')
+    }
+  }
+}
+
 /**
  * Definition class for a (grammatical) feature. Stores type information and (optionally) all possible values of the feature.
  * It serves as a feature generator. If list of possible values is provided, it can generate a Feature object
@@ -308,6 +666,17 @@ class FeatureType {
     }
   }
 
+  getFromImporter (importerName, value) {
+    let mapped
+    try {
+      mapped = this.importer[importerName].get(value)
+    } catch (e) {
+      // quietly catch not found and replace with default
+      mapped = this.get(value)
+    }
+    return mapped
+  }
+
     /**
      * Creates and returns a new importer with a specific name. If an importer with this name already exists,
      * an existing Importer object will be returned.
@@ -319,7 +688,7 @@ class FeatureType {
       throw new Error('Importer should have a non-empty name.')
     }
     this.importer = this.importer || {}
-    this.importer[name] = this.importer[name] || new Importer()
+    this.importer[name] = this.importer[name] || new FeatureImporter()
     return this.importer[name]
   }
 
@@ -430,57 +799,6 @@ class FeatureType {
         this._orderLookup[element.value] = index
         this._orderIndex[index] = element.value
       }
-    }
-  }
-}
-
-/**
- * This is a hash table that maps values to be imported from an external file or service to library standard values.
- */
-class Importer {
-  constructor () {
-    this.hash = {}
-    return this
-  }
-
-    /**
-     * Sets mapping between external imported value and one or more library standard values. If an importedValue
-     * is already in a hash table, old libraryValue will be overwritten with the new one.
-     * @param {string} importedValue - External value
-     * @param {Object | Object[] | string | string[]} libraryValue - Library standard value
-     */
-  map (importedValue, libraryValue) {
-    if (!importedValue) {
-      throw new Error('Imported value should not be empty.')
-    }
-
-    if (!libraryValue) {
-      throw new Error('Library value should not be empty.')
-    }
-
-    this.hash[importedValue] = libraryValue
-    return this
-  }
-
-    /**
-     * Checks if value is in a map.
-     * @param {string} importedValue - A value to test.
-     * @returns {boolean} - Tru if value is in a map, false otherwise.
-     */
-  has (importedValue) {
-    return this.hash.hasOwnProperty(importedValue)
-  }
-
-    /**
-     * Returns one or more library standard values that match an external value
-     * @param {string} importedValue - External value
-     * @returns {Object | string} One or more of library standard values
-     */
-  get (importedValue) {
-    if (this.has(importedValue)) {
-      return this.hash[importedValue]
-    } else {
-      throw new Error('A value "' + importedValue + '" is not found in the importer.')
     }
   }
 }
@@ -867,59 +1185,6 @@ class LanguageModelFactory {
 }
 
 /**
- * A list of grammatical features that characterizes a language unit. Has some additional service methods,
- * compared with standard storage objects.
- */
-
-class FeatureImporter {
-  constructor () {
-    this.hash = {}
-    return this
-  }
-
-    /**
-     * Sets mapping between external imported value and one or more library standard values. If an importedValue
-     * is already in a hash table, old libraryValue will be overwritten with the new one.
-     * @param {string} importedValue - External value
-     * @param {Object | Object[] | string | string[]} libraryValue - Library standard value
-     */
-  map (importedValue, libraryValue) {
-    if (!importedValue) {
-      throw new Error('Imported value should not be empty.')
-    }
-
-    if (!libraryValue) {
-      throw new Error('Library value should not be empty.')
-    }
-
-    this.hash[importedValue] = libraryValue
-    return this
-  }
-
-    /**
-     * Checks if value is in a map.
-     * @param {string} importedValue - A value to test.
-     * @returns {boolean} - Tru if value is in a map, false otherwise.
-     */
-  has (importedValue) {
-    return this.hash.hasOwnProperty(importedValue)
-  }
-
-    /**
-     * Returns one or more library standard values that match an external value
-     * @param {string} importedValue - External value
-     * @returns {Object | string} One or more of library standard values
-     */
-  get (importedValue) {
-    if (this.has(importedValue)) {
-      return this.hash[importedValue]
-    } else {
-      throw new Error('A value "' + importedValue + '" is not found in the importer.')
-    }
-  }
-}
-
-/**
  * Lemma, a canonical form of a word.
  */
 class Lemma {
@@ -934,7 +1199,7 @@ class Lemma {
     }
 
     if (!language) {
-      throw new Error('Langauge should not be empty.')
+      throw new Error('Language should not be empty.')
     }
 
         // if (!languages.isAllowed(language)) {
@@ -1228,17 +1493,17 @@ Types and values that are unknown (undefined) will be skipped during parsing.
 
 data.addFeature(Feature.types.gender).importer
     .map('common',
-  [ data.language.features[types.gender][GEND_MASCULINE],
-    data.language.features[types.gender][GEND_FEMININE]
+  [ data.language.features[types.gender][constants.GEND_MASCULINE],
+    data.language.features[types.gender][constants.GEND_FEMININE]
   ])
     .map('all',
-  [ data.language.features[types.gender][GEND_MASCULINE],
-    data.language.features[types.gender][GEND_FEMININE],
-    data.language.features[types.gender][GEND_NEUTER]
+  [ data.language.features[types.gender][constants.GEND_MASCULINE],
+    data.language.features[types.gender][constants.GEND_FEMININE],
+    data.language.features[types.gender][constants.GEND_NEUTER]
   ])
 
 data.addFeature(Feature.types.tense).importer
-    .map('future_perfect', data.language.features[types.tense][TENSE_FUTURE_PERFECT])
+    .map('future_perfect', data.language.features[types.tense][constants.TENSE_FUTURE_PERFECT])
 
 let data$1 = new ImportData(new GreekLanguageModel(), 'morpheusgrc')
 let types$1 = Feature.types
@@ -1253,21 +1518,21 @@ Types and values that are unknown (undefined) will be skipped during parsing.
 
 data$1.addFeature(Feature.types.gender).importer
     .map('masculine feminine',
-  [ data$1.language.features[types$1.gender][GEND_MASCULINE],
-    data$1.language.features[types$1.gender][GEND_FEMININE]
+  [ data$1.language.features[types$1.gender][constants.GEND_MASCULINE],
+    data$1.language.features[types$1.gender][constants.GEND_FEMININE]
   ])
 
 data$1.addFeature(Feature.types.declension).importer
     .map('1st & 2nd',
-  [ data$1.language.features[types$1.declension][ORD_1ST],
-    data$1.language.features[types$1.declension][ORD_2ND]
+  [ data$1.language.features[types$1.declension][constants.ORD_1ST],
+    data$1.language.features[types$1.declension][constants.ORD_2ND]
   ])
 
 let data$2 = new ImportData(new ArabicLanguageModel(), 'aramorph')
 let types$2 = Feature.types
 
 data$2.addFeature(Feature.types.part).importer
-    .map('proper noun', [data$2.language.features[types$2.part][POFS_NOUN]])
+    .map('proper noun', [data$2.language.features[types$2.part][constants.POFS_NOUN]])
 
 var Cupidinibus = '{\n  "RDF": {\n    "Annotation": {\n      "about": "urn:TuftsMorphologyService:cupidinibus:whitakerLat",\n      "creator": {\n        "Agent": {\n          "about": "net.alpheios:tools:wordsxml.v1"\n        }\n      },\n      "created": {\n        "$": "2017-08-10T23:15:29.185581"\n      },\n      "hasTarget": {\n        "Description": {\n          "about": "urn:word:cupidinibus"\n        }\n      },\n      "title": {},\n      "hasBody": [\n        {\n          "resource": "urn:uuid:idm140578094883136"\n        },\n        {\n          "resource": "urn:uuid:idm140578158026160"\n        }\n      ],\n      "Body": [\n        {\n          "about": "urn:uuid:idm140578094883136",\n          "type": {\n            "resource": "cnt:ContentAsXML"\n          },\n          "rest": {\n            "entry": {\n              "infl": [\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 2,\n                    "$": "locative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 5,\n                    "$": "dative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 3,\n                    "$": "ablative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "masculine"\n                  }\n                }\n              ],\n              "dict": {\n                "hdwd": {\n                  "lang": "lat",\n                  "$": "Cupido, Cupidinis"\n                },\n                "pofs": {\n                  "order": 5,\n                  "$": "noun"\n                },\n                "decl": {\n                  "$": "3rd"\n                },\n                "gend": {\n                  "$": "masculine"\n                },\n                "area": {\n                  "$": "religion"\n                },\n                "freq": {\n                  "order": 4,\n                  "$": "common"\n                },\n                "src": {\n                  "$": "Ox.Lat.Dict."\n                }\n              },\n              "mean": {\n                "$": "Cupid, son of Venus; personification of carnal desire;"\n              }\n            }\n          }\n        },\n        {\n          "about": "urn:uuid:idm140578158026160",\n          "type": {\n            "resource": "cnt:ContentAsXML"\n          },\n          "rest": {\n            "entry": {\n              "infl": [\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 2,\n                    "$": "locative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 5,\n                    "$": "dative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                },\n                {\n                  "term": {\n                    "lang": "lat",\n                    "stem": {\n                      "$": "cupidin"\n                    },\n                    "suff": {\n                      "$": "ibus"\n                    }\n                  },\n                  "pofs": {\n                    "order": 5,\n                    "$": "noun"\n                  },\n                  "decl": {\n                    "$": "3rd"\n                  },\n                  "var": {\n                    "$": "1st"\n                  },\n                  "case": {\n                    "order": 3,\n                    "$": "ablative"\n                  },\n                  "num": {\n                    "$": "plural"\n                  },\n                  "gend": {\n                    "$": "common"\n                  }\n                }\n              ],\n              "dict": {\n                "hdwd": {\n                  "lang": "lat",\n                  "$": "cupido, cupidinis"\n                },\n                "pofs": {\n                  "order": 5,\n                  "$": "noun"\n                },\n                "decl": {\n                  "$": "3rd"\n                },\n                "gend": {\n                  "$": "common"\n                },\n                "freq": {\n                  "order": 5,\n                  "$": "frequent"\n                },\n                "src": {\n                  "$": "Ox.Lat.Dict."\n                }\n              },\n              "mean": {\n                "$": "desire/love/wish/longing (passionate); lust; greed, appetite; desire for gain;"\n              }\n            }\n          }\n        }\n      ]\n    }\n  }\n}\n'
 
