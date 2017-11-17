@@ -21,6 +21,8 @@ class ImportData {
     for (let featureName of Object.keys(language.features)) {
       this.addFeature(featureName)
     }
+    // may be overridden by specific engine use via setLemmaParser
+    this.parseLemma = function (lemma) { return lemma }
   }
 
     /**
@@ -56,6 +58,13 @@ class ImportData {
     this[featureName].importer = new Models.FeatureImporter()
 
     return this[featureName]
+  }
+
+  /**
+   * Add an engine-specific lemma parser
+   */
+  setLemmaParser (callback) {
+    this.parseLemma = callback
   }
 }
 export default ImportData

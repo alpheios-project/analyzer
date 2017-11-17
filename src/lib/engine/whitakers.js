@@ -29,4 +29,24 @@ data.addFeature(Models.Feature.types.gender).importer
 data.addFeature(Models.Feature.types.tense).importer
     .map('future_perfect', data.language.features[types.tense][Models.Constants.TENSE_FUTURE_PERFECT])
 
+data.setLemmaParser(function (lemma) {
+  // Whitaker's Words returns principal parts for some words
+  // and sometimes has a space separted stem and suffix
+  let parsed, primary
+  let parts = []
+  let lemmas = lemma.split(', ')
+  for (let [index, l] of lemmas.entries()) {
+    let normalized = l.split(' ')[0]
+    if (index === 0) {
+      primary = normalized
+    }
+    parts.push(normalized)
+  }
+  if (primary) {
+    parsed = new Models.Lemma(primary, this.language.toCode(), parts)
+  }
+
+  return parsed
+})
+
 export default data
