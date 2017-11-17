@@ -1444,7 +1444,7 @@ class ImportData {
       this.addFeature(featureName);
     }
     // may be overridden by specific engine use via setLemmaParser
-    this.parseLemma = function (lemma) { return lemma };
+    this.parseLemma = function (lemma) { return new Lemma(lemma, this.language.toCode()) };
   }
 
     /**
