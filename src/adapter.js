@@ -65,7 +65,7 @@ class TuftsAdapter extends BaseAdapter {
             // Get importer based on the language
       let language = lexeme.rest.entry.dict.hdwd.lang
       let mappingData = this.getEngineLanguageMap(language)
-      let lemma = new Models.Lemma(lexeme.rest.entry.dict.hdwd.$, language)
+      let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language)
       let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : ''
 
       let inflections = []

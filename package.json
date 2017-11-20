@@ -40,7 +40,7 @@
     "transformIgnorePatterns": []
   },
   "dependencies": {
-    "alpheios-data-models": "git://github.com/alpheios-project/data-models.git",
+    "alpheios-data-models": "git://github.com/alpheios-project/data-models.git#altlemmas",
     "alpheios-morph-client": "git://github.com/alpheios-project/morph-client.git"
   }
 }
