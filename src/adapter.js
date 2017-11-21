@@ -34,7 +34,6 @@ class TuftsAdapter extends BaseAdapter {
     return new Promise((resolve, reject) => {
       try {
         let wordData = new WordTestData().get(word)
-        console.log(wordData)
         let json = JSON.parse(wordData)
         resolve(json)
       } catch (error) {
@@ -61,13 +60,26 @@ class TuftsAdapter extends BaseAdapter {
              */
       annotationBody = [annotationBody]
     }
+    let provider
     for (let lexeme of annotationBody) {
             // Get importer based on the language
       let language = lexeme.rest.entry.dict.hdwd.lang
       let mappingData = this.getEngineLanguageMap(language)
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language)
-      let meaning = lexeme.rest.entry.mean ? lexeme.rest.entry.mean.$ : ''
-
+      if (!provider) {
+        let providerUri = jsonObj.RDF.Annotation.about
+        let providerRights = ''
+        if (jsonObj.RDF.Annotation.rights) {
+          providerRights = jsonObj.RDF.Annotation.rights.$
+        }
+        provider = new Models.ResourceProvider(providerUri, providerRights)
+      }
+      let meaning = lexeme.rest.entry.mean
+      let shortdef
+      if (meaning) {
+        let lang = meaning.lang ? meaning.lang : 'eng'
+        shortdef = new Models.Definition(meaning.$, lang, 'text/plain')
+      }
       let inflections = []
       let inflectionsJSON = lexeme.rest.entry.infl
       if (!Array.isArray(inflectionsJSON)) {
@@ -127,7 +139,10 @@ class TuftsAdapter extends BaseAdapter {
 
         inflections.push(inflection)
       }
-      lexemes.push(new Models.Lexeme(lemma, inflections, meaning))
+
+      let lexmodel = new Models.Lexeme(lemma, inflections, shortdef)
+      let providedLexeme = Models.ResourceProvider.getProxy(provider, lexmodel)
+      lexemes.push(providedLexeme)
     }
     return new Models.Homonym(lexemes, targetWord)
   }
