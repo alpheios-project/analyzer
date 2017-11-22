@@ -4,6 +4,7 @@ import Morpheusgrc from './lib/engine/morpheusgrc'
 import Aramorph from './lib/engine/aramorph'
 import * as Models from 'alpheios-data-models'
 import WordTestData from './lib/engine/data/test-data'
+import DefaultConfig from './config.json'
 
 class TuftsAdapter extends BaseAdapter {
   /**
@@ -12,21 +13,27 @@ class TuftsAdapter extends BaseAdapter {
    * @param {object} engine an object which maps language code to desired engine code
                             for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
    */
-  constructor ({engine = null, url = null}) {
+  constructor (config = null) {
     super()
-    this.langToEngine = engine
-    this.url = url
+    if (config == null) {
+      try {
+        this.config = JSON.parse(DefaultConfig)
+      } catch (e) {
+        this.config = DefaultConfig
+      }
+    } else {
+      this.config = config
+    }
     this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph ]).map((e) => { return [ e.engine, e ] }))
-    return this
   }
 
   getEngineLanguageMap (lang) {
-    return this.engineMap.get(this.langToEngine[lang])
+    return this.engineMap.get(this.config.engine[lang][0])
   }
 
   prepareRequestUrl (lang, word) {
-    let engine = this.langToEngine[lang]
-    let url = this.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
+    let engine = this.config[lang]
+    let url = this.config.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
     return url
   }
 

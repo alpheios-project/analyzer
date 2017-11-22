@@ -7,21 +7,27 @@ describe('TuftsAdapter object', () => {
   beforeAll(() => {
   })
 
+  test('default config', () => {
+    let adapter = new TuftsAdapter()
+    expect(adapter.config).toBeTruthy()
+    expect(adapter.config.engine).toBeTruthy()
+  })
+
   test('get correct engine for language', () => {
-    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc', lat: 'whitakerLat' }, url: null })
+    let adapter = new TuftsAdapter()
     let data = adapter.getEngineLanguageMap('grc')
     expect(data.engine).toEqual('morpheusgrc')
   })
 
   test('default values are returned', () => {
-    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
+    let adapter = new TuftsAdapter()
     let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.grmCase].get('nominative')
     let def = new Models.Feature('nominative', Models.Feature.types.grmCase, 'grc')
     expect(retrieved).toEqual(def)
   })
 
   test('mapped values are returned', () => {
-    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
+    let adapter = new TuftsAdapter()
     let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.gender].get('masculine feminine')
     let def = [ new Models.Feature(Models.Constants.GEND_MASCULINE, Models.Feature.types.gender, 'grc'),
       new Models.Feature(Models.Constants.GEND_FEMININE, Models.Feature.types.gender, 'grc')
@@ -30,14 +36,14 @@ describe('TuftsAdapter object', () => {
   })
 
   test('unmapped values with no defaults throws an error', () => {
-    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc' }, url: null })
+    let adapter = new TuftsAdapter()
     expect(() => {
       let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.person].get('1') // eslint-disable-line no-unused-vars
     }).toThrowError(/unknown value/)
   })
 
   test('we adapted mare properly', () => {
-    let adapter = new TuftsAdapter({ engine: { grc: 'morpheusgrc', lat: 'whitakerLat' }, url: null })
+    let adapter = new TuftsAdapter()
     let mare = require('../src/lib/engine/data/latin_noun_adj_mare.json')
     let homonym = adapter.transform(mare)
     expect(homonym.lexemes.length).toEqual(3)
