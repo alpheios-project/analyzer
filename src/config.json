@@ -1,0 +1,8 @@
+{
+  "engine": {
+    "lat": ["whitakerLat"],
+    "grc": ["morpheusgrc"],
+    "ara": ["aramorph"]
+  },
+  "url": "http://morph.alpheios.net/api/v1/analysis/word?word=r_WORD&engine=r_ENGINE&lang=r_LANG"
+}
