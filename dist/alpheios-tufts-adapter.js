@@ -1672,7 +1672,7 @@ class TuftsAdapter extends BaseAdapter {
   }
 
   prepareRequestUrl (lang, word) {
-    let engine = this.getEngineLanguageMap(lang);
+    let engine = this.getEngineLanguageMap(lang).engine;
     let url = this.config.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang);
     return url
   }
