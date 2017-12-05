@@ -1796,7 +1796,7 @@ class TuftsAdapter extends BaseAdapter {
   }
 
   getEngineLanguageMap (lang) {
-    if (this.engineMap.has(this.config.engine[lang][0])) {
+    if (this.config.engine[lang]) {
       return this.engineMap.get(this.config.engine[lang][0])
     } else {
       return null
@@ -1804,9 +1804,10 @@ class TuftsAdapter extends BaseAdapter {
   }
 
   prepareRequestUrl (lang, word) {
-    let engine = this.getEngineLanguageMap(lang).engine;
+    let engine = this.getEngineLanguageMap(lang);
     if (engine) {
-      return this.config.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
+      let code = engine.engine;
+      return this.config.url.replace('r_WORD', word).replace('r_ENGINE', code).replace('r_LANG', lang)
     } else {
       return null
     }
