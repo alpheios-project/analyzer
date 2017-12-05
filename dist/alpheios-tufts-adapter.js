@@ -1796,13 +1796,20 @@ class TuftsAdapter extends BaseAdapter {
   }
 
   getEngineLanguageMap (lang) {
-    return this.engineMap.get(this.config.engine[lang][0])
+    if (this.engineMap.has(this.config.engine[lang][0])) {
+      return this.engineMap.get(this.config.engine[lang][0])
+    } else {
+      return null
+    }
   }
 
   prepareRequestUrl (lang, word) {
     let engine = this.getEngineLanguageMap(lang).engine;
-    let url = this.config.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang);
-    return url
+    if (engine) {
+      return this.config.url.replace('r_WORD', word).replace('r_ENGINE', engine).replace('r_LANG', lang)
+    } else {
+      return null
+    }
   }
 
   fetchTestData (lang, word) {
