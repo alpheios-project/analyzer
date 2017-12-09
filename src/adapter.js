@@ -81,6 +81,7 @@ class TuftsAdapter extends BaseAdapter {
       let language = lexeme.rest.entry.dict.hdwd.lang
       let mappingData = this.getEngineLanguageMap(language)
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language)
+
       if (!provider) {
         let providerUri = jsonObj.RDF.Annotation.about
         let providerRights = ''
@@ -92,6 +93,7 @@ class TuftsAdapter extends BaseAdapter {
       let meaning = lexeme.rest.entry.mean
       let shortdef
       if (meaning) {
+        // TODO: convert a source-specific language code to ISO 639-3 if don't match
         let lang = meaning.lang ? meaning.lang : 'eng'
         shortdef = new Models.Definition(meaning.$, lang, 'text/plain')
       }
@@ -155,7 +157,8 @@ class TuftsAdapter extends BaseAdapter {
         inflections.push(inflection)
       }
 
-      let lexmodel = new Models.Lexeme(lemma, inflections, shortdef)
+      let lexmodel = new Models.Lexeme(lemma, inflections)
+      lexmodel.meaning.appendShortDefs(shortdef)
       let providedLexeme = Models.ResourceProvider.getProxy(provider, lexmodel)
       lexemes.push(providedLexeme)
     }
