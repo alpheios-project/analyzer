@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/alpheios-project/tufts-adapter#readme",
   "devDependencies": {
-    "alpheios-data-models": "git://github.com/alpheios-project/data-models.git#providerobj",
+    "alpheios-data-models": "git://github.com/alpheios-project/data-models.git",
     "alpheios-morph-client": "git://github.com/alpheios-project/morph-client.git",
     "babel-jest": "^21.2.0",
     "babel-preset-es2015": "^6.24.1",
