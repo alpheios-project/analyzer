@@ -2,13 +2,14 @@
   "name": "alpheios-tufts-adapter",
   "version": "0.0.1",
   "description": "Alpheios Morph Client Adapter for Tufts Morphology Service",
-  "main": "dist/alpheios-tufts-adapter.js",
+  "main": "dist/alpheios-tufts-adapter.standalone.js",
+  "moduleExternal": "dist/alpheios-tufts-adapter.module-external.js",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
     "test": "standard --fix && jest",
-    "build": "standard --fix && rollup -c rollup.config.js",
+    "build": "standard --fix && node ./rollup.build.js",
     "lint": "standard --fix"
   },
   "repository": {
@@ -41,5 +42,21 @@
     "testEnvironment": "jest-environment-jsdom-11.0.0",
     "transformIgnorePatterns": []
   },
-  "dependencies": {}
+  "dependencies": {},
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    }
+  },
+  "standard": {
+    "ignore": [
+      "**/dist",
+      "**/support"
+    ]
+  }
 }
