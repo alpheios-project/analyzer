@@ -19,6 +19,12 @@ describe('TuftsAdapter object', () => {
     expect(data.engine).toEqual('morpheusgrc')
   })
 
+  test('get persian engine', () => {
+    let adapter = new TuftsAdapter()
+    let data = adapter.getEngineLanguageMap('per')
+    expect(data.engine).toEqual('hazm')
+  })
+
   test('default values are returned', () => {
     let adapter = new TuftsAdapter()
     let retrieved = adapter.getEngineLanguageMap('grc')[Models.Feature.types.grmCase].get('nominative')
@@ -49,7 +55,7 @@ describe('TuftsAdapter object', () => {
     expect(homonym.lexemes.length).toEqual(3)
     let nounMare = homonym.lexemes.filter(l => l.lemma.word === 'mare')
     expect(nounMare.length).toEqual(1)
-    expect(nounMare[0].meaning.text).toBeTruthy()
+    expect(nounMare[0].meaning).toBeTruthy()
     expect(nounMare[0].provider.uri).toEqual('urn:TuftsMorphologyService:mare:morpheuslat')
     let nounMarum = homonym.lexemes.filter(l => l.lemma.word === 'marum')
     expect(nounMarum.length).toEqual(1)

@@ -2,6 +2,7 @@ import BaseAdapter from 'alpheios-morph-client'
 import Whitakers from './lib/engine/whitakers'
 import Morpheusgrc from './lib/engine/morpheusgrc'
 import Aramorph from './lib/engine/aramorph'
+import Hazm from './lib/engine/hazm'
 import * as Models from 'alpheios-data-models'
 import WordTestData from './lib/engine/data/test-data'
 import DefaultConfig from './config.json'
@@ -24,7 +25,7 @@ class TuftsAdapter extends BaseAdapter {
     } else {
       this.config = config
     }
-    this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph ]).map((e) => { return [ e.engine, e ] }))
+    this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph, Hazm ]).map((e) => { return [ e.engine, e ] }))
   }
 
   getEngineLanguageMap (lang) {
