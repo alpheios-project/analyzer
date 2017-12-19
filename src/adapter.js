@@ -82,6 +82,46 @@ class TuftsAdapter extends BaseAdapter {
       let language = lexeme.rest.entry.dict.hdwd.lang
       let mappingData = this.getEngineLanguageMap(language)
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language)
+      if (lexeme.rest.entry.dict.pofs) {
+        lemma.feature = mappingData[Models.Feature.types.part].get(
+          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order)
+      }
+      if (lexeme.rest.entry.dict.decl) {
+        lemma.feature = mappingData[Models.Feature.types.declension].get(
+          lexeme.rest.entry.dict.decl.$, lexeme.rest.entry.dict.decl.order)
+      }
+      if (lexeme.rest.entry.dict.conj) {
+        lemma.feature = mappingData[Models.Feature.types.conjugation].get(
+          lexeme.rest.entry.dict.conj.$, lexeme.rest.entry.dict.conj.order)
+      }
+      if (lexeme.rest.entry.dict.area) {
+        lemma.feature = mappingData[Models.Feature.types.area].get(
+          lexeme.rest.entry.dict.area.$, lexeme.rest.entry.dict.area.order)
+      }
+      if (lexeme.rest.entry.dict.age) {
+        lemma.feature = mappingData[Models.Feature.types.age].get(
+          lexeme.rest.entry.dict.age.$, lexeme.rest.entry.dict.age.order)
+      }
+      if (lexeme.rest.entry.dict.geo) {
+        lemma.feature = mappingData[Models.Feature.types.geo].get(
+          lexeme.rest.entry.dict.geo.$, lexeme.rest.entry.dict.geo.order)
+      }
+      if (lexeme.rest.entry.dict.freq) {
+        lemma.feature = mappingData[Models.Feature.types.frequency].get(
+          lexeme.rest.entry.dict.freq.$, lexeme.rest.entry.dict.freq.order)
+      }
+      if (lexeme.rest.entry.dict.note) {
+        lemma.feature = mappingData[Models.Feature.types.note].get(
+          lexeme.rest.entry.dict.note.$, lexeme.rest.entry.dict.note.order)
+      }
+      if (lexeme.rest.entry.dict.pron) {
+        lemma.feature = mappingData[Models.Feature.types.pronunciation].get(
+          lexeme.rest.entry.dict.pron.$, lexeme.rest.entry.dict.pron.order)
+      }
+      if (lexeme.rest.entry.dict.src) {
+        lemma.feature = mappingData[Models.Feature.types.source].get(
+          lexeme.rest.entry.dict.src.$, lexeme.rest.entry.dict.src.order)
+      }
 
       if (!provider) {
         let providerUri = jsonObj.RDF.Annotation.about
@@ -117,6 +157,8 @@ class TuftsAdapter extends BaseAdapter {
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
           inflection.feature = mappingData[Models.Feature.types.part].get(inflectionJSON.pofs.$)
+          // inflection pofs overrides lemma pofs
+          lemma.feature = mappingData[Models.Feature.types.part].get(inflectionJSON.pofs.$)
         }
 
         if (inflectionJSON.case) {
@@ -125,6 +167,8 @@ class TuftsAdapter extends BaseAdapter {
 
         if (inflectionJSON.decl) {
           inflection.feature = mappingData[Models.Feature.types.declension].get(inflectionJSON.decl.$)
+          // inflection decl overrides lemma decl
+          lemma.feature = mappingData[Models.Feature.types.declension].get(inflectionJSON.decl.$)
         }
 
         if (inflectionJSON.num) {
@@ -137,6 +181,8 @@ class TuftsAdapter extends BaseAdapter {
 
         if (inflectionJSON.conj) {
           inflection.feature = mappingData[Models.Feature.types.conjugation].get(inflectionJSON.conj.$)
+          // inflection conj overrides lemma conj
+          lemma.feature = mappingData[Models.Feature.types.conjugation].get(inflectionJSON.conj.$)
         }
 
         if (inflectionJSON.tense) {

@@ -35,24 +35,34 @@ class ImportData {
     let language = this.language
 
     this[featureName].add = function add (providerValue, alpheiosValue) {
-      'use strict'
       this[providerValue] = alpheiosValue
       return this
     }
 
-    this[featureName].get = function get (providerValue) {
-      'use strict'
+    this[featureName].get = function get (providerValue, sortOrder) {
+      let mappedValue = []
       if (!this.importer.has(providerValue)) {
-        // if the providerValue matches the model value return that
-        if (language.features[featureName][providerValue]) {
-          return language.features[featureName][providerValue]
+        // if the providerValue matches the model value or the model value
+        // is unrestricted, return a feature with the providerValue and order
+        if (language.features[featureName][providerValue] ||
+            language.features[featureName].unrestrictedValue) {
+          mappedValue = language.features[featureName].get(providerValue, sortOrder)
         } else {
           throw new Error("Skipping an unknown value '" +
                     providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
         }
       } else {
-        return this.importer.get(providerValue)
+        let tempValue = this.importer.get(providerValue)
+        if (Array.isArray(tempValue)) {
+          mappedValue = []
+          for (let feature of tempValue) {
+            mappedValue.push(language.features[featureName].get(feature.value, sortOrder))
+          }
+        } else {
+          mappedValue = language.features[featureName].get(tempValue.value, sortOrder)
+        }
       }
+      return mappedValue
     }
 
     this[featureName].importer = new Models.FeatureImporter()

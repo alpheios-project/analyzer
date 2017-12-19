@@ -106,24 +106,34 @@ class ImportData {
     let language = this.language;
 
     this[featureName].add = function add (providerValue, alpheiosValue) {
-      'use strict';
       this[providerValue] = alpheiosValue;
       return this
     };
 
-    this[featureName].get = function get (providerValue) {
-      'use strict';
+    this[featureName].get = function get (providerValue, sortOrder) {
+      let mappedValue = [];
       if (!this.importer.has(providerValue)) {
-        // if the providerValue matches the model value return that
-        if (language.features[featureName][providerValue]) {
-          return language.features[featureName][providerValue]
+        // if the providerValue matches the model value or the model value
+        // is unrestricted, return a feature with the providerValue and order
+        if (language.features[featureName][providerValue] ||
+            language.features[featureName].unrestrictedValue) {
+          mappedValue = language.features[featureName].get(providerValue, sortOrder);
         } else {
           throw new Error("Skipping an unknown value '" +
                     providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
         }
       } else {
-        return this.importer.get(providerValue)
+        let tempValue = this.importer.get(providerValue);
+        if (Array.isArray(tempValue)) {
+          mappedValue = [];
+          for (let feature of tempValue) {
+            mappedValue.push(language.features[featureName].get(feature.value, sortOrder));
+          }
+        } else {
+          mappedValue = language.features[featureName].get(tempValue.value, sortOrder);
+        }
       }
+      return mappedValue
     };
 
     this[featureName].importer = new FeatureImporter();
@@ -325,6 +335,46 @@ class TuftsAdapter extends BaseAdapter {
       let language = lexeme.rest.entry.dict.hdwd.lang;
       let mappingData = this.getEngineLanguageMap(language);
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language);
+      if (lexeme.rest.entry.dict.pofs) {
+        lemma.feature = mappingData[Feature.types.part].get(
+          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
+      }
+      if (lexeme.rest.entry.dict.decl) {
+        lemma.feature = mappingData[Feature.types.declension].get(
+          lexeme.rest.entry.dict.decl.$, lexeme.rest.entry.dict.decl.order);
+      }
+      if (lexeme.rest.entry.dict.conj) {
+        lemma.feature = mappingData[Feature.types.conjugation].get(
+          lexeme.rest.entry.dict.conj.$, lexeme.rest.entry.dict.conj.order);
+      }
+      if (lexeme.rest.entry.dict.area) {
+        lemma.feature = mappingData[Feature.types.area].get(
+          lexeme.rest.entry.dict.area.$, lexeme.rest.entry.dict.area.order);
+      }
+      if (lexeme.rest.entry.dict.age) {
+        lemma.feature = mappingData[Feature.types.age].get(
+          lexeme.rest.entry.dict.age.$, lexeme.rest.entry.dict.age.order);
+      }
+      if (lexeme.rest.entry.dict.geo) {
+        lemma.feature = mappingData[Feature.types.geo].get(
+          lexeme.rest.entry.dict.geo.$, lexeme.rest.entry.dict.geo.order);
+      }
+      if (lexeme.rest.entry.dict.freq) {
+        lemma.feature = mappingData[Feature.types.frequency].get(
+          lexeme.rest.entry.dict.freq.$, lexeme.rest.entry.dict.freq.order);
+      }
+      if (lexeme.rest.entry.dict.note) {
+        lemma.feature = mappingData[Feature.types.note].get(
+          lexeme.rest.entry.dict.note.$, lexeme.rest.entry.dict.note.order);
+      }
+      if (lexeme.rest.entry.dict.pron) {
+        lemma.feature = mappingData[Feature.types.pronunciation].get(
+          lexeme.rest.entry.dict.pron.$, lexeme.rest.entry.dict.pron.order);
+      }
+      if (lexeme.rest.entry.dict.src) {
+        lemma.feature = mappingData[Feature.types.source].get(
+          lexeme.rest.entry.dict.src.$, lexeme.rest.entry.dict.src.order);
+      }
 
       if (!provider) {
         let providerUri = jsonObj.RDF.Annotation.about;
@@ -360,6 +410,8 @@ class TuftsAdapter extends BaseAdapter {
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
           inflection.feature = mappingData[Feature.types.part].get(inflectionJSON.pofs.$);
+          // inflection pofs overrides lemma pofs
+          lemma.feature = mappingData[Feature.types.part].get(inflectionJSON.pofs.$);
         }
 
         if (inflectionJSON.case) {
@@ -368,6 +420,8 @@ class TuftsAdapter extends BaseAdapter {
 
         if (inflectionJSON.decl) {
           inflection.feature = mappingData[Feature.types.declension].get(inflectionJSON.decl.$);
+          // inflection decl overrides lemma decl
+          lemma.feature = mappingData[Feature.types.declension].get(inflectionJSON.decl.$);
         }
 
         if (inflectionJSON.num) {
@@ -380,6 +434,8 @@ class TuftsAdapter extends BaseAdapter {
 
         if (inflectionJSON.conj) {
           inflection.feature = mappingData[Feature.types.conjugation].get(inflectionJSON.conj.$);
+          // inflection conj overrides lemma conj
+          lemma.feature = mappingData[Feature.types.conjugation].get(inflectionJSON.conj.$);
         }
 
         if (inflectionJSON.tense) {
