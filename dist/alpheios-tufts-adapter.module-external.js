@@ -339,6 +339,14 @@ class TuftsAdapter extends BaseAdapter {
         lemma.feature = mappingData[Feature.types.part].get(
           lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
       }
+      if (lexeme.rest.entry.dict.case) {
+        lemma.feature = mappingData[Feature.types.case].get(
+          lexeme.rest.entry.dict.case.$, lexeme.rest.entry.dict.case.order);
+      }
+      if (lexeme.rest.entry.dict.gend) {
+        lemma.feature = mappingData[Feature.types.gender].get(
+          lexeme.rest.entry.dict.gend.$, lexeme.rest.entry.dict.gend.order);
+      }
       if (lexeme.rest.entry.dict.decl) {
         lemma.feature = mappingData[Feature.types.declension].get(
           lexeme.rest.entry.dict.decl.$, lexeme.rest.entry.dict.decl.order);
@@ -409,49 +417,68 @@ class TuftsAdapter extends BaseAdapter {
         }
                 // Parse whatever grammatical features we're interested in
         if (inflectionJSON.pofs) {
-          inflection.feature = mappingData[Feature.types.part].get(inflectionJSON.pofs.$);
-          // inflection pofs overrides lemma pofs
-          lemma.feature = mappingData[Feature.types.part].get(inflectionJSON.pofs.$);
+          inflection.feature = mappingData[Feature.types.part].get(
+            inflectionJSON.pofs.$, inflectionJSON.pofs.order);
+          // inflection pofs can provide missing lemma pofs
+          if (!lemma.features[Feature.types.part]) {
+            lemma.feature = mappingData[Feature.types.part].get(
+              inflectionJSON.pofs.$, inflectionJSON.pofs.order);
+          }
         }
 
         if (inflectionJSON.case) {
-          inflection.feature = mappingData[Feature.types.grmCase].get(inflectionJSON.case.$);
+          inflection.feature = mappingData[Feature.types.grmCase].get(
+            inflectionJSON.case.$, inflectionJSON.case.order);
         }
 
         if (inflectionJSON.decl) {
-          inflection.feature = mappingData[Feature.types.declension].get(inflectionJSON.decl.$);
-          // inflection decl overrides lemma decl
-          lemma.feature = mappingData[Feature.types.declension].get(inflectionJSON.decl.$);
+          inflection.feature = mappingData[Feature.types.declension].get(
+            inflectionJSON.decl.$, inflectionJSON.decl.order);
+          // inflection decl can provide lemma decl
+          if (!lemma.features[Feature.types.declension]) {
+            lemma.feature = mappingData[Feature.types.declension].get(
+              inflectionJSON.decl.$, inflectionJSON.decl.order);
+          }
         }
 
         if (inflectionJSON.num) {
-          inflection.feature = mappingData[Feature.types.number].get(inflectionJSON.num.$);
+          inflection.feature = mappingData[Feature.types.number].get(
+            inflectionJSON.num.$, inflectionJSON.num.order);
         }
 
         if (inflectionJSON.gend) {
-          inflection.feature = mappingData[Feature.types.gender].get(inflectionJSON.gend.$);
+          inflection.feature = mappingData[Feature.types.gender].get(
+            inflectionJSON.gend.$, inflectionJSON.gend.order);
         }
 
         if (inflectionJSON.conj) {
-          inflection.feature = mappingData[Feature.types.conjugation].get(inflectionJSON.conj.$);
-          // inflection conj overrides lemma conj
-          lemma.feature = mappingData[Feature.types.conjugation].get(inflectionJSON.conj.$);
+          inflection.feature = mappingData[Feature.types.conjugation].get(
+            inflectionJSON.conj.$, inflectionJSON.conj.order);
+          // inflection conj can provide lemma conj
+          if (!lemma.features[Feature.types.conjugation]) {
+            lemma.feature = mappingData[Feature.types.conjugation].get(
+              inflectionJSON.conj.$, inflectionJSON.conj.order);
+          }
         }
 
         if (inflectionJSON.tense) {
-          inflection.feature = mappingData[Feature.types.tense].get(inflectionJSON.tense.$);
+          inflection.feature = mappingData[Feature.types.tense].get(
+            inflectionJSON.tense.$, inflectionJSON.tense.order);
         }
 
         if (inflectionJSON.voice) {
-          inflection.feature = mappingData[Feature.types.voice].get(inflectionJSON.voice.$);
+          inflection.feature = mappingData[Feature.types.voice].get(
+            inflectionJSON.voice.$, inflectionJSON.voice.order);
         }
 
         if (inflectionJSON.mood) {
-          inflection.feature = mappingData[Feature.types.mood].get(inflectionJSON.mood.$);
+          inflection.feature = mappingData[Feature.types.mood].get(
+            inflectionJSON.mood.$, inflectionJSON.mood.order);
         }
 
         if (inflectionJSON.pers) {
-          inflection.feature = mappingData[Feature.types.person].get(inflectionJSON.pers.$);
+          inflection.feature = mappingData[Feature.types.person].get(
+            inflectionJSON.pers.$, inflectionJSON.pers.order);
         }
 
         inflections.push(inflection);
