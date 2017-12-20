@@ -10,6 +10,9 @@
       "created": {
         "$": "2017-09-08T06:59:48.639180"
       },
+      "rights": {
+        "$": "Morphology provided by Morpheus from the Perseus Digital Library at Tufts University."
+      },
       "hasTarget": {
         "Description": {
           "about": "urn:word:mare"

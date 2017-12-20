@@ -124,7 +124,7 @@ class TuftsAdapter extends BaseAdapter {
       }
 
       if (!provider) {
-        let providerUri = jsonObj.RDF.Annotation.about
+        let providerUri = jsonObj.RDF.Annotation.creator.Agent.about
         let providerRights = ''
         if (jsonObj.RDF.Annotation.rights) {
           providerRights = jsonObj.RDF.Annotation.rights.$
