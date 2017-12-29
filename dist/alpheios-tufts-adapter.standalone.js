@@ -1535,6 +1535,14 @@ class Feature {
       return this.value === feature.value && this.type === feature.type && this.language === feature.language
     }
   }
+
+  toString (feature) {
+    if (Array.isArray(this.value)) {
+      return this.value.join(',')
+    } else {
+      return this.value
+    }
+  }
 }
 // Should have no spaces in values in order to be used in HTML templates
 Feature.types = {
@@ -1639,6 +1647,32 @@ class Lemma {
   }
 }
 
+class InflectionGroup {
+  /**
+   * A group of inflections
+   * @param {object} groupingKey properties of the group
+   * @param {Inflection[]|InflectionGroup[]} inflections array of inflections or inflection groups
+   * @param {string} sortKey optional property upon which inflections in the group can be sorted
+   */
+  constructor (groupingKey = {}, inflections = [], sortKey = null) {
+    this.groupingKey = groupingKey;
+    this.inflections = inflections;
+    this.sortKey = sortKey;
+  }
+
+  append (inflection) {
+    this.inflections.push(inflection);
+  }
+
+  static sortByOrder () {
+    return (a, b) => {
+      // let orderA = groupOrder.get(a)
+      // let orderB = groupOrder.get(b)
+      // return orderA > orderB ? -1 : orderB > orderA ? 1 : 0
+    }
+  }
+}
+
 /*
  Hierarchical structure of return value of a morphological analyzer:
 
@@ -1667,8 +1701,11 @@ class Inflection {
      * Initializes an Inflection object.
      * @param {string} stem - A stem of a word.
      * @param {string} language - A word's language.
+     * @param {string} suffix - a suffix of a word
+     * @param {prefix} prefix - a prefix of a word
+     * @param {example} example - example
      */
-  constructor (stem, language) {
+  constructor (stem, language, suffix = null, prefix = null, example = null) {
     if (!stem) {
       throw new Error('Stem should not be empty.')
     }
@@ -1685,26 +1722,19 @@ class Inflection {
     this.language = language;
 
     // Suffix may not be present in every word. If missing, it will set to null.
-    this.suffix = null;
+    this.suffix = suffix;
 
     // Prefix may not be present in every word. If missing, it will set to null.
-    this.prefix = null;
+    this.prefix = prefix;
 
     // Example may not be provided
-    this.example = null;
+    this.example = example;
   }
 
   static readObject (jsonObject) {
-    let inflection = new Inflection(jsonObject.stem, jsonObject.language);
-    if (jsonObject.suffix) {
-      inflection.suffix = jsonObject.suffix;
-    }
-    if (jsonObject.prefix) {
-      inflection.prefix = jsonObject.prefix;
-    }
-    if (jsonObject.example) {
-      inflection.example = jsonObject.example;
-    }
+    let inflection =
+      new Inflection(
+        jsonObject.stem, jsonObject.language, jsonObject.suffix, jsonObject.prefix, jsonObject.example);
     return inflection
   }
 
@@ -1734,8 +1764,155 @@ class Inflection {
                 this.language + '" of an Inflection object.')
       }
 
-      this[type].push(element.value);
+      this[type].push(element);
+      // this[type].push(element.value)
     }
+  }
+
+  featureMatch (featureName, otherInflection) {
+    let matches = false;
+    for (let f of this[featureName]) {
+      if (otherInflection[featureName] && otherInflection[featureName].filter((x) => x.isEqual(f)).length > 0) {
+        matches = true;
+        break
+      }
+    }
+    return matches
+  }
+
+  static groupForDisplay (inflections) {
+    let grouped = new Map();
+
+    // group inflections by part of speech
+    for (let infl of inflections) {
+      let pofskey, sortkey;
+      if (infl[Feature.types.part]) {
+        pofskey = infl[Feature.types.part].map((f) => { return f.value }).join(',');
+        sortkey = Math.max(infl[Feature.types.part].map((f) => { return f.sortOrder }));
+      } else {
+        pofskey = '';
+        sortkey = 1;
+      }
+      let dialkey = infl[Feature.types.dialect] ? infl[Feature.types.dialect].map((f) => { return f.value }).join(',') : '';
+      let compkey = infl[Feature.types.comparison] ? infl[Feature.types.comparison].map((f) => { return f.value }).join(',') : '';
+      let prefkey = infl.prefix ? infl.prefix : '';
+      let suffkey = infl.suffix ? infl.suffix : '';
+      let key = [prefkey, infl.stem, suffkey, pofskey, compkey, dialkey].filter((x) => x).join(' ');
+      if (grouped.has(key)) {
+        grouped.get(key).append(infl);
+      } else {
+        let props = {
+          prefix: infl.prefix,
+          suffix: infl.suffix,
+          stem: infl.stem
+        };
+        props[Feature.types.part] = infl[Feature.types.part];
+        props[Feature.types.dialect] = infl[Feature.types.dialect];
+        props[Feature.types.comparison] = infl[Feature.types.comparison];
+        grouped.set(key, new InflectionGroup(props, [infl], sortkey));
+      }
+    }
+
+    // iterate through each group key to group the inflections in that group
+    for (let kv of grouped) {
+      let inflgrp = new Map();
+      for (let infl of kv[1].inflections) {
+        let setkey;
+        let keyprop;
+        let props = {};
+        if (infl[Feature.types.grmCase]) {
+          // grouping on number if case is defined
+          setkey = infl[Feature.types.number] ? infl[Feature.types.number].map((f) => { return f.value }).join(',') : '';
+          keyprop = Feature.types.number;
+          props[keyprop] = infl[Feature.types.number];
+        } else if (infl[Feature.types.tense]) {
+          // grouping on tense if tense is defined but not case
+          setkey = infl[Feature.types.tense].map((f) => { return f.value }).join(',');
+          keyprop = Feature.types.tense;
+          props[keyprop] = infl[Feature.types.tense];
+        } else if (infl[Feature.types.part] === POFS_VERB) {
+          // grouping on no case or tense but a verb
+          setkey = POFS_VERB;
+          keyprop = Feature.types.part;
+          props[keyprop] = infl[Feature.types.part];
+        } else if (infl[Feature.types.part] === POFS_ADVERB) {
+          keyprop = Feature.types.part;
+          setkey = POFS_ADVERB;
+          props[keyprop] = infl[Feature.types.part];
+          // grouping on adverbs without case or tense
+        } else {
+          keyprop = 'misc';
+          setkey = '';
+          props[keyprop] = setkey;
+          // grouping on adverbs without case or tense
+          // everything else
+        }
+        if (inflgrp.has(setkey)) {
+          inflgrp.get(setkey).append(infl);
+        } else {
+          inflgrp.set(setkey, new InflectionGroup(props, [infl]));
+        }
+      }
+      // inflgrp is now a map of groups of inflections grouped by
+      //  inflections with number
+      //  inflections without number but with tense
+      //  inflections of verbs without tense
+      //  inflections of adverbs
+      //  everything else
+      // iterate through each inflection group key to group the inflections in that group by tense and voice
+      for (let kv of inflgrp) {
+        let nextGroup = new Map();
+        for (let infl of kv[1].inflections) {
+          let tensekey = infl[Feature.types.tense] ? infl[Feature.types.tense].map((f) => { return f.value }).join(',') : '';
+          let voicekey = infl[Feature.types.voice] ? infl[Feature.types.voice].map((f) => { return f.value }).join(',') : '';
+          let setkey = [tensekey, voicekey].filter((x) => x).join(' ');
+          let sortkey = infl[Feature.types.grmCase] ? Math.max(infl[Feature.types.grmCase].map((f) => { return f.sortOrder })) : 1;
+          if (nextGroup.has(setkey)) {
+            nextGroup.get(setkey).append(infl);
+          } else {
+            let props = {};
+            props[Feature.types.tense] = infl[Feature.types.tense];
+            props[Feature.types.voice] = infl[Feature.types.voice];
+            nextGroup.set(setkey, new InflectionGroup(props, [infl], sortkey));
+          }
+        }
+        kv[1].inflections = Array.from(nextGroup.values());
+      }
+
+      // inflgrp is now a Map of groups of groups of inflections
+
+      for (let kv of inflgrp) {
+        let groups = kv[1];
+        for (let group of groups.inflections) {
+          let nextGroup = new Map();
+          for (let infl of group.inflections) {
+            // set key is case comp gend pers mood sort
+            let casekey = infl[Feature.types.grmCase] ? infl[Feature.types.grmCase].map((f) => { return f.value }).join(',') : '';
+            let compkey = infl[Feature.types.comparison] ? infl[Feature.types.comparison].map((f) => { return f.value }).join(',') : '';
+            let gendkey = infl[Feature.types.gender] ? infl[Feature.types.gender].map((f) => { return f.value }).join(',') : '';
+            let perskey = infl[Feature.types.person] ? infl[Feature.types.person].map((f) => { return f.value }).join(',') : '';
+            let moodkey = infl[Feature.types.mood] ? infl[Feature.types.mood].map((f) => { return f.value }).join(',') : '';
+            let sortkey = infl[Feature.types.sort] ? infl[Feature.types.sort].map((f) => { return f.value }).join(',') : '';
+            let setkey = [casekey, compkey, gendkey, perskey, moodkey, sortkey].filter((x) => x).join(' ');
+            if (nextGroup.has(setkey)) {
+              nextGroup.get(setkey).append(infl);
+            } else {
+              let props = {};
+              props[Feature.types.grmCase] = infl[Feature.types.grmCase];
+              props[Feature.types.comparison] = infl[Feature.types.comparison];
+              props[Feature.types.gender] = infl[Feature.types.gender];
+              props[Feature.types.person] = infl[Feature.types.person];
+              props[Feature.types.mood] = infl[Feature.types.mood];
+              props[Feature.types.sort] = infl[Feature.types.sort];
+              nextGroup.set(setkey, new InflectionGroup(props, [infl]));
+            }
+          }
+          group.inflections = Array.from(nextGroup.values()); // now a group of inflection groups
+        }
+      }
+      kv[1].inflections = Array.from(inflgrp.values());
+    }
+    return Array.from(grouped.values())
   }
 }
 
@@ -1779,6 +1956,11 @@ class Lexeme {
     this.meaning = meaning || new DefinitionSet(this.lemma.word, this.lemma.languageID);
   }
 
+  getGroupedInflections () {
+    console.log(Inflection.groupForDisplay(this.inflections));
+    return Inflection.groupForDisplay(this.inflections)
+  }
+
   static readObject (jsonObject) {
     let lemma = Lemma.readObject(jsonObject.lemma);
     let inflections = [];
@@ -1791,22 +1973,38 @@ class Lexeme {
     return lexeme
   }
 
-  static getSortByTwoLemmaFeatures (featureOne, featureTwo) {
+  /**
+   * Get a sort function for an array of lexemes which applies a primary and secondary
+   * sort logic using the sort order specified for each feature. Sorts in descending order -
+   * higher sort order means it should come first
+   * @param {string} primary feature name to use as primary sort key
+   * @param {string} secondary feature name to use as secondary sort key
+   * @returns {Function} function which can be passed to Array.sort
+   */
+  static getSortByTwoLemmaFeatures (primary, secondary) {
     return (a, b) => {
-      if (a.lemma.features[featureOne] && b.lemma.features[featureOne]) {
-        if (a.lemma.features[featureOne][0].sortOrder < b.lemma.features[featureOne][0].sortOrder) {
+      if (a.lemma.features[primary] && b.lemma.features[primary]) {
+        if (a.lemma.features[primary][0].sortOrder < b.lemma.features[primary][0].sortOrder) {
           return 1
-        } else if (a.lemma.features[featureOne][0].sortOrder > b.lemma.features[featureOne][0].sortOrder) {
+        } else if (a.lemma.features[primary][0].sortOrder > b.lemma.features[primary][0].sortOrder) {
           return -1
-        } else if (a.lemma.features[featureTwo] && b.lemma.features[featureTwo]) {
-          if (a.lemma.features[featureTwo][0].sortOrder < b.lemma.features[featureTwo][0].sortOrder) {
+        } else if (a.lemma.features[secondary] && b.lemma.features[secondary]) {
+          if (a.lemma.features[secondary][0].sortOrder < b.lemma.features[secondary][0].sortOrder) {
             return 1
-          } else if (a.lemma.features[featureTwo][0].sortOrder > b.lemma.features[featureTwo][0].sortOrder) {
+          } else if (a.lemma.features[secondary][0].sortOrder > b.lemma.features[secondary][0].sortOrder) {
             return -1
+          } else if (a.lemma.features[secondary] && !b.lemma.features[secondary]) {
+            return -1
+          } else if (!a.lemma.features[secondary] && b.lemma.features[secondary]) {
+            return 1
           } else {
             return 0
           }
         }
+      } else if (a.lemma.features[primary] && !b.lemma.features[primary]) {
+        return -1
+      } else if (!a.lemma.features[primary] && b.lemma.features[primary]) {
+        return 1
       } else {
         return 0
       }
@@ -2189,10 +2387,10 @@ class TuftsAdapter extends BaseAdapter {
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language);
       if (lexeme.rest.entry.dict.pofs) {
         lemma.feature = mappingData[Feature.types.part].get(
-          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
+          lexeme.rest.entry.dict.pofs.$.trim(), lexeme.rest.entry.dict.pofs.order);
       }
       if (lexeme.rest.entry.dict.case) {
-        lemma.feature = mappingData[Feature.types.case].get(
+        lemma.feature = mappingData[Feature.types.grmCase].get(
           lexeme.rest.entry.dict.case.$, lexeme.rest.entry.dict.case.order);
       }
       if (lexeme.rest.entry.dict.gend) {

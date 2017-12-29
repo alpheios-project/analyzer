@@ -337,10 +337,10 @@ class TuftsAdapter extends BaseAdapter {
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language);
       if (lexeme.rest.entry.dict.pofs) {
         lemma.feature = mappingData[Feature.types.part].get(
-          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
+          lexeme.rest.entry.dict.pofs.$.trim(), lexeme.rest.entry.dict.pofs.order);
       }
       if (lexeme.rest.entry.dict.case) {
-        lemma.feature = mappingData[Feature.types.case].get(
+        lemma.feature = mappingData[Feature.types.grmCase].get(
           lexeme.rest.entry.dict.case.$, lexeme.rest.entry.dict.case.order);
       }
       if (lexeme.rest.entry.dict.gend) {

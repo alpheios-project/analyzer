@@ -87,7 +87,7 @@ class TuftsAdapter extends BaseAdapter {
           lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order)
       }
       if (lexeme.rest.entry.dict.case) {
-        lemma.feature = mappingData[Models.Feature.types.case].get(
+        lemma.feature = mappingData[Models.Feature.types.grmCase].get(
           lexeme.rest.entry.dict.case.$, lexeme.rest.entry.dict.case.order)
       }
       if (lexeme.rest.entry.dict.gend) {
