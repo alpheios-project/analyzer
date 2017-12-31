@@ -65,8 +65,15 @@ describe('TuftsAdapter object', () => {
     let adjMas = homonym.lexemes.filter(l => l.lemma.word === 'mas')
     expect(adjMas.length).toEqual(1)
     expect(nounMare[0].inflections.length).toEqual(4)
-    let nounMareVoc = nounMare[0].inflections.filter(i => i[Models.Feature.types.grmCase].includes('vocative'))
-    expect(nounMareVoc.length).toEqual(1)
+    let vocative = 0
+    for (let c of nounMare[0].inflections.map(i => i[Models.Feature.types.grmCase])) {
+      for (let f of c) {
+        if (f.hasValue('vocative')) {
+          vocative++
+        }
+      }
+    }
+    expect(vocative).toEqual(1)
   })
 
   test('we adapted cupidinibus properly', () => {

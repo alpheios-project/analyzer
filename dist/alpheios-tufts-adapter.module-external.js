@@ -116,7 +116,7 @@ class ImportData {
         // if the providerValue matches the model value or the model value
         // is unrestricted, return a feature with the providerValue and order
         if (language.features[featureName][providerValue] ||
-            language.features[featureName].unrestrictedValue) {
+            language.features[featureName].hasUnrestrictedValue()) {
           mappedValue = language.features[featureName].get(providerValue, sortOrder);
         } else {
           throw new Error("Skipping an unknown value '" +
@@ -337,7 +337,7 @@ class TuftsAdapter extends BaseAdapter {
       let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language);
       if (lexeme.rest.entry.dict.pofs) {
         lemma.feature = mappingData[Feature.types.part].get(
-          lexeme.rest.entry.dict.pofs.$.trim(), lexeme.rest.entry.dict.pofs.order);
+          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
       }
       if (lexeme.rest.entry.dict.case) {
         lemma.feature = mappingData[Feature.types.grmCase].get(
