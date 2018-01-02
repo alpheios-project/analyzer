@@ -329,82 +329,89 @@ class TuftsAdapter extends BaseAdapter {
              */
       annotationBody = [annotationBody];
     }
-    let provider;
+    let providerUri = jsonObj.RDF.Annotation.creator.Agent.about;
+    let providerRights = '';
+    if (jsonObj.RDF.Annotation.rights) {
+      providerRights = jsonObj.RDF.Annotation.rights.$;
+    }
+    let provider = new ResourceProvider(providerUri, providerRights);
     for (let lexeme of annotationBody) {
-            // Get importer based on the language
-      let language = lexeme.rest.entry.dict.hdwd.lang;
-      let mappingData = this.getEngineLanguageMap(language);
-      let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language);
-      if (lexeme.rest.entry.dict.pofs) {
-        lemma.feature = mappingData[Feature.types.part].get(
-          lexeme.rest.entry.dict.pofs.$, lexeme.rest.entry.dict.pofs.order);
-      }
-      if (lexeme.rest.entry.dict.case) {
-        lemma.feature = mappingData[Feature.types.grmCase].get(
-          lexeme.rest.entry.dict.case.$, lexeme.rest.entry.dict.case.order);
-      }
-      if (lexeme.rest.entry.dict.gend) {
-        lemma.feature = mappingData[Feature.types.gender].get(
-          lexeme.rest.entry.dict.gend.$, lexeme.rest.entry.dict.gend.order);
-      }
-      if (lexeme.rest.entry.dict.decl) {
-        lemma.feature = mappingData[Feature.types.declension].get(
-          lexeme.rest.entry.dict.decl.$, lexeme.rest.entry.dict.decl.order);
-      }
-      if (lexeme.rest.entry.dict.conj) {
-        lemma.feature = mappingData[Feature.types.conjugation].get(
-          lexeme.rest.entry.dict.conj.$, lexeme.rest.entry.dict.conj.order);
-      }
-      if (lexeme.rest.entry.dict.area) {
-        lemma.feature = mappingData[Feature.types.area].get(
-          lexeme.rest.entry.dict.area.$, lexeme.rest.entry.dict.area.order);
-      }
-      if (lexeme.rest.entry.dict.age) {
-        lemma.feature = mappingData[Feature.types.age].get(
-          lexeme.rest.entry.dict.age.$, lexeme.rest.entry.dict.age.order);
-      }
-      if (lexeme.rest.entry.dict.geo) {
-        lemma.feature = mappingData[Feature.types.geo].get(
-          lexeme.rest.entry.dict.geo.$, lexeme.rest.entry.dict.geo.order);
-      }
-      if (lexeme.rest.entry.dict.freq) {
-        lemma.feature = mappingData[Feature.types.frequency].get(
-          lexeme.rest.entry.dict.freq.$, lexeme.rest.entry.dict.freq.order);
-      }
-      if (lexeme.rest.entry.dict.note) {
-        lemma.feature = mappingData[Feature.types.note].get(
-          lexeme.rest.entry.dict.note.$, lexeme.rest.entry.dict.note.order);
-      }
-      if (lexeme.rest.entry.dict.pron) {
-        lemma.feature = mappingData[Feature.types.pronunciation].get(
-          lexeme.rest.entry.dict.pron.$, lexeme.rest.entry.dict.pron.order);
-      }
-      if (lexeme.rest.entry.dict.src) {
-        lemma.feature = mappingData[Feature.types.source].get(
-          lexeme.rest.entry.dict.src.$, lexeme.rest.entry.dict.src.order);
-      }
-
-      if (!provider) {
-        let providerUri = jsonObj.RDF.Annotation.creator.Agent.about;
-        let providerRights = '';
-        if (jsonObj.RDF.Annotation.rights) {
-          providerRights = jsonObj.RDF.Annotation.rights.$;
-        }
-        provider = new ResourceProvider(providerUri, providerRights);
-      }
-      let meaning = lexeme.rest.entry.mean;
-      let shortdef;
-      if (meaning) {
-        // TODO: convert a source-specific language code to ISO 639-3 if don't match
-        let lang = meaning.lang ? meaning.lang : 'eng';
-        shortdef = new Definition(meaning.$, lang, 'text/plain');
-      }
-      let inflections = [];
       let inflectionsJSON = lexeme.rest.entry.infl;
-      if (!Array.isArray(inflectionsJSON)) {
-                // If only one inflection returned, it is a single object, not an array of objects. Convert it to an array for uniformity.
+      if (!inflectionsJSON) {
+        inflectionsJSON = [];
+      } else if (!Array.isArray(inflectionsJSON)) {
+        // If only one inflection returned, it is a single object, not an array of objects.
+        // Convert it to an array for uniformity.
         inflectionsJSON = [inflectionsJSON];
       }
+      let lemmaElements;
+      if (lexeme.rest.entry.dict) {
+        if (Array.isArray(lexeme.rest.entry.dict)) {
+          lemmaElements = lexeme.rest.entry.dict;
+        } else {
+          lemmaElements = [lexeme.rest.entry.dict];
+        }
+      } else if (inflectionsJSON.length > 0 && inflectionsJSON[0].term) {
+        lemmaElements = [inflectionsJSON[0].term];
+      }
+      // in rare cases (e.g. conditum in Whitakers) multiple dict entries
+      // exist - always use the lemma and language from the first
+      let language = lemmaElements[0].hdwd ? lemmaElements[0].hdwd.lang : lemmaElements[0].lang;
+      // Get importer based on the language
+      let mappingData = this.getEngineLanguageMap(language);
+      let features = [
+        ['pofs', 'part'],
+        ['case', 'grmCase'],
+        ['gend', 'gender'],
+        ['decl', 'declension'],
+        ['conj', 'conjugation'],
+        ['area', 'area'],
+        ['age', 'age'],
+        ['geo', 'geo'],
+        ['freq', 'frequency'],
+        ['note', 'note'],
+        ['pron', 'pronunciation'],
+        ['src', 'source']
+      ];
+      let lemmas = [];
+      let lexemeSet = [];
+      for (let entry of lemmaElements.entries()) {
+        let shortdefs = [];
+        let index = entry[0];
+        let elem = entry[1];
+        let lemma = mappingData.parseLemma(elem.hdwd ? elem.hdwd.$ : elem.$, language);
+        lemmas.push(lemma);
+        for (let feature of features) {
+          if (elem[feature[0]]) {
+            lemma.feature = mappingData[Feature.types[feature[1]]].get(
+              elem[feature[0]].$, elem[feature[0]].order);
+          }
+        }
+        let meanings = lexeme.rest.entry.mean;
+        if (!Array.isArray(meanings)) {
+          meanings = [meanings];
+        }
+        meanings = meanings.filter((m) => m);
+        // if we have multiple dictionary elements, take the meaning with the matching index
+        if (lemmaElements.length > 1) {
+          if (meanings && meanings[index]) {
+            let meaning = meanings[index];
+            // TODO: convert a source-specific language code to ISO 639-3 if don't match
+            let lang = meaning.lang ? meaning.lang : 'eng';
+            shortdefs.push(new Definition(meaning.$, lang, 'text/plain'));
+          }
+        } else {
+          for (let meaning of meanings) {
+            let lang = meaning.lang ? meaning.lang : 'eng';
+            shortdefs.push(new Definition(meaning.$, lang, 'text/plain'));
+          }
+        }
+        let lexmodel = new Lexeme(lemma, []);
+
+        lexmodel.meaning.appendShortDefs(shortdefs);
+        lexemeSet.push(ResourceProvider.getProxy(provider, lexmodel));
+      }
+      let inflections = [];
       for (let inflectionJSON of inflectionsJSON) {
         let inflection = new Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode());
         if (inflectionJSON.term.suff) {
@@ -420,9 +427,11 @@ class TuftsAdapter extends BaseAdapter {
           inflection.feature = mappingData[Feature.types.part].get(
             inflectionJSON.pofs.$, inflectionJSON.pofs.order);
           // inflection pofs can provide missing lemma pofs
-          if (!lemma.features[Feature.types.part]) {
-            lemma.feature = mappingData[Feature.types.part].get(
-              inflectionJSON.pofs.$, inflectionJSON.pofs.order);
+          for (let lemma of lemmas) {
+            if (!lemma.features[Feature.types.part]) {
+              lemma.feature = mappingData[Feature.types.part].get(
+                inflectionJSON.pofs.$, inflectionJSON.pofs.order);
+            }
           }
         }
 
@@ -435,9 +444,11 @@ class TuftsAdapter extends BaseAdapter {
           inflection.feature = mappingData[Feature.types.declension].get(
             inflectionJSON.decl.$, inflectionJSON.decl.order);
           // inflection decl can provide lemma decl
-          if (!lemma.features[Feature.types.declension]) {
-            lemma.feature = mappingData[Feature.types.declension].get(
-              inflectionJSON.decl.$, inflectionJSON.decl.order);
+          for (let lemma of lemmas) {
+            if (!lemma.features[Feature.types.declension]) {
+              lemma.feature = mappingData[Feature.types.declension].get(
+                inflectionJSON.decl.$, inflectionJSON.decl.order);
+            }
           }
         }
 
@@ -455,9 +466,11 @@ class TuftsAdapter extends BaseAdapter {
           inflection.feature = mappingData[Feature.types.conjugation].get(
             inflectionJSON.conj.$, inflectionJSON.conj.order);
           // inflection conj can provide lemma conj
-          if (!lemma.features[Feature.types.conjugation]) {
-            lemma.feature = mappingData[Feature.types.conjugation].get(
-              inflectionJSON.conj.$, inflectionJSON.conj.order);
+          for (let lemma of lemmas) {
+            if (!lemma.features[Feature.types.conjugation]) {
+              lemma.feature = mappingData[Feature.types.conjugation].get(
+                inflectionJSON.conj.$, inflectionJSON.conj.order);
+            }
           }
         }
 
@@ -483,11 +496,10 @@ class TuftsAdapter extends BaseAdapter {
 
         inflections.push(inflection);
       }
-
-      let lexmodel = new Lexeme(lemma, inflections);
-      lexmodel.meaning.appendShortDefs(shortdef);
-      let providedLexeme = ResourceProvider.getProxy(provider, lexmodel);
-      lexemes.push(providedLexeme);
+      for (let lex of lexemeSet) {
+        lex.inflections = inflections;
+      }
+      lexemes.push(...lexemeSet);
     }
     return new Homonym(lexemes, targetWord)
   }
