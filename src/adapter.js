@@ -187,13 +187,13 @@ class TuftsAdapter extends BaseAdapter {
         // inflection can provide lemma decl, pofs, conj
         for (let lemma of lemmas) {
           if (!lemma.features[Models.Feature.types.declension]) {
-            mappingData.mapFeature(lemma, inflectionJSON, 'decl', 'declension')
+            mappingData.mapFeature(lemma, inflectionJSON, 'decl', 'declension', this.config.allowUnknownValues)
           }
           if (!lemma.features[Models.Feature.types.part]) {
-            mappingData.mapFeature(lemma, inflectionJSON, 'pofs', 'part')
+            mappingData.mapFeature(lemma, inflectionJSON, 'pofs', 'part', this.config.allowUnknownValues)
           }
           if (!lemma.features[Models.Feature.types.conjugation]) {
-            mappingData.mapFeature(lemma, inflectionJSON, 'conj', 'conjugation')
+            mappingData.mapFeature(lemma, inflectionJSON, 'conj', 'conjugation', this.config.allowUnknownValues)
           }
         }
       }
