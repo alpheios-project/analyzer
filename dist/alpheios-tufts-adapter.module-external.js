@@ -82,6 +82,7 @@ class ImportData {
     /**
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
+     * @param {string} engine - engine code
      */
   constructor (language, engine) {
     'use strict';
@@ -123,7 +124,7 @@ class ImportData {
       return this
     };
 
-    this[featureName].get = function get (providerValue, sortOrder) {
+    this[featureName].get = function get (providerValue, sortOrder = 1, allowUnknownValues = false) {
       let mappedValue = [];
       if (!this.importer.has(providerValue)) {
         // if the providerValue matches the model value or the model value
@@ -132,8 +133,13 @@ class ImportData {
             language.features[featureName].hasUnrestrictedValue()) {
           mappedValue = language.features[featureName].get(providerValue, sortOrder);
         } else {
-          throw new Error("Skipping an unknown value '" +
-                    providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
+          let message = `${allowUnknownValues} Unknown value "${providerValue}" of feature "${featureName}" for ${language}.`;
+          if (allowUnknownValues) {
+            console.log(message);
+            mappedValue = language.features[featureName].get(providerValue, sortOrder);
+          } else {
+            throw new Error(message)
+          }
         }
       } else {
         let tempValue = this.importer.get(providerValue);
@@ -174,8 +180,9 @@ class ImportData {
    * @param {object} inputElem the input data element
    * @param {object} inputName the  property name in the input data
    * @param {string} featureName the name of the feature it will be mapped to
+   * @param {boolean} allowUnknownValues flag to indicate if unknown values are allowed
    */
-  mapFeature (model, inputElem, inputName, featureName) {
+  mapFeature (model, inputElem, inputName, featureName, allowUnknownValues) {
     let mapped = [];
     let values = [];
     if (inputElem[inputName]) {
@@ -305,26 +312,22 @@ class WordTestData {
   }
 }
 
-var DefaultConfig = "{\n  \"engine\": {\n    \"lat\": [\"whitakerLat\"],\n    \"grc\": [\"morpheusgrc\"],\n    \"ara\": [\"aramorph\"],\n    \"per\": [\"hazm\"]\n  },\n  \"url\": \"http://morph.alpheios.net/api/v1/analysis/word?word=r_WORD&engine=r_ENGINE&lang=r_LANG\"\n}\n";
+var DefaultConfig = "{\n  \"engine\": {\n    \"lat\": [\"whitakerLat\"],\n    \"grc\": [\"morpheusgrc\"],\n    \"ara\": [\"aramorph\"],\n    \"per\": [\"hazm\"]\n  },\n  \"url\": \"http://morph.alpheios.net/api/v1/analysis/word?word=r_WORD&engine=r_ENGINE&lang=r_LANG\",\n  \"allowUnknownValues\": true\n}\n";
 
 class TuftsAdapter extends BaseAdapter {
   /**
    * A Morph Client Adapter for the Tufts Morphology Service
    * @constructor
-   * @param {object} engine an object which maps language code to desired engine code
-                            for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
+   * @param {object} config configuraiton object
    */
-  constructor (config = null) {
+  constructor (config = {}) {
     super();
-    if (config == null) {
-      try {
-        this.config = JSON.parse(DefaultConfig);
-      } catch (e) {
-        this.config = DefaultConfig;
-      }
-    } else {
-      this.config = config;
+    try {
+      this.config = JSON.parse(DefaultConfig);
+    } catch (e) {
+      this.config = Object.assign({}, DefaultConfig);
     }
+    Object.assign(this.config, config);
     this.engineMap = new Map(([ data, data$1, data$2, data$3 ]).map((e) => { return [ e.engine, e ] }));
   }
 
@@ -429,7 +432,7 @@ class TuftsAdapter extends BaseAdapter {
         let lemma = mappingData.parseLemma(elem.hdwd ? elem.hdwd.$ : elem.$, language);
         lemmas.push(lemma);
         for (let feature of features) {
-          mappingData.mapFeature(lemma, elem, ...feature);
+          mappingData.mapFeature(lemma, elem, ...feature, this.config.allowUnknownValues);
         }
         let meanings = lexeme.rest.entry.mean;
         if (!Array.isArray(meanings)) {
@@ -467,17 +470,17 @@ class TuftsAdapter extends BaseAdapter {
           inflection.example = inflectionJSON.xmpl.$;
         }
         // Parse whatever grammatical features we're interested in
-        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part');
-        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase');
-        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension');
-        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number');
-        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender');
-        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation');
-        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense');
-        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice');
-        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood');
-        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person');
-        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison');
+        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person', this.config.allowUnknownValues);
+        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison', this.config.allowUnknownValues);
         // we only use the inflection if it tells us something the dictionary details do not
         if (inflection[Feature.types.grmCase] ||
           inflection[Feature.types.tense] ||

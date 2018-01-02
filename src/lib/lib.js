@@ -11,6 +11,7 @@ class ImportData {
     /**
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
+     * @param {string} engine - engine code
      */
   constructor (language, engine) {
     'use strict'
@@ -52,7 +53,7 @@ class ImportData {
       return this
     }
 
-    this[featureName].get = function get (providerValue, sortOrder) {
+    this[featureName].get = function get (providerValue, sortOrder = 1, allowUnknownValues = false) {
       let mappedValue = []
       if (!this.importer.has(providerValue)) {
         // if the providerValue matches the model value or the model value
@@ -61,8 +62,13 @@ class ImportData {
             language.features[featureName].hasUnrestrictedValue()) {
           mappedValue = language.features[featureName].get(providerValue, sortOrder)
         } else {
-          throw new Error("Skipping an unknown value '" +
-                    providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
+          let message = `${allowUnknownValues} Unknown value "${providerValue}" of feature "${featureName}" for ${language}.`
+          if (allowUnknownValues) {
+            console.log(message)
+            mappedValue = language.features[featureName].get(providerValue, sortOrder)
+          } else {
+            throw new Error(message)
+          }
         }
       } else {
         let tempValue = this.importer.get(providerValue)
@@ -103,8 +109,9 @@ class ImportData {
    * @param {object} inputElem the input data element
    * @param {object} inputName the  property name in the input data
    * @param {string} featureName the name of the feature it will be mapped to
+   * @param {boolean} allowUnknownValues flag to indicate if unknown values are allowed
    */
-  mapFeature (model, inputElem, inputName, featureName) {
+  mapFeature (model, inputElem, inputName, featureName, allowUnknownValues) {
     let mapped = []
     let values = []
     if (inputElem[inputName]) {

@@ -11,20 +11,16 @@ class TuftsAdapter extends BaseAdapter {
   /**
    * A Morph Client Adapter for the Tufts Morphology Service
    * @constructor
-   * @param {object} engine an object which maps language code to desired engine code
-                            for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
+   * @param {object} config configuraiton object
    */
-  constructor (config = null) {
+  constructor (config = {}) {
     super()
-    if (config == null) {
-      try {
-        this.config = JSON.parse(DefaultConfig)
-      } catch (e) {
-        this.config = DefaultConfig
-      }
-    } else {
-      this.config = config
+    try {
+      this.config = JSON.parse(DefaultConfig)
+    } catch (e) {
+      this.config = Object.assign({}, DefaultConfig)
     }
+    Object.assign(this.config, config)
     this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph, Hazm ]).map((e) => { return [ e.engine, e ] }))
   }
 
@@ -129,7 +125,7 @@ class TuftsAdapter extends BaseAdapter {
         let lemma = mappingData.parseLemma(elem.hdwd ? elem.hdwd.$ : elem.$, language)
         lemmas.push(lemma)
         for (let feature of features) {
-          mappingData.mapFeature(lemma, elem, ...feature)
+          mappingData.mapFeature(lemma, elem, ...feature, this.config.allowUnknownValues)
         }
         let meanings = lexeme.rest.entry.mean
         if (!Array.isArray(meanings)) {
@@ -167,17 +163,17 @@ class TuftsAdapter extends BaseAdapter {
           inflection.example = inflectionJSON.xmpl.$
         }
         // Parse whatever grammatical features we're interested in
-        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part')
-        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase')
-        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension')
-        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number')
-        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender')
-        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation')
-        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense')
-        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice')
-        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood')
-        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person')
-        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison')
+        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison', this.config.allowUnknownValues)
         // we only use the inflection if it tells us something the dictionary details do not
         if (inflection[Models.Feature.types.grmCase] ||
           inflection[Models.Feature.types.tense] ||
