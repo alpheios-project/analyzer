@@ -2540,6 +2540,7 @@ class TuftsAdapter extends BaseAdapter {
       }
       let inflections = [];
       for (let inflectionJSON of inflectionsJSON) {
+        let useInflection = false;
         let inflection = new Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode());
         if (inflectionJSON.term.suff) {
                     // Set suffix if provided by a morphological analyzer
@@ -2547,6 +2548,7 @@ class TuftsAdapter extends BaseAdapter {
         }
 
         if (inflectionJSON.xmpl) {
+          useInflection = true;
           inflection.example = inflectionJSON.xmpl.$;
         }
                 // Parse whatever grammatical features we're interested in
@@ -2563,6 +2565,7 @@ class TuftsAdapter extends BaseAdapter {
         }
 
         if (inflectionJSON.case) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.grmCase].get(
             inflectionJSON.case.$, inflectionJSON.case.order);
         }
@@ -2580,11 +2583,13 @@ class TuftsAdapter extends BaseAdapter {
         }
 
         if (inflectionJSON.num) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.number].get(
             inflectionJSON.num.$, inflectionJSON.num.order);
         }
 
         if (inflectionJSON.gend) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.gender].get(
             inflectionJSON.gend.$, inflectionJSON.gend.order);
         }
@@ -2602,26 +2607,33 @@ class TuftsAdapter extends BaseAdapter {
         }
 
         if (inflectionJSON.tense) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.tense].get(
             inflectionJSON.tense.$, inflectionJSON.tense.order);
         }
 
         if (inflectionJSON.voice) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.voice].get(
             inflectionJSON.voice.$, inflectionJSON.voice.order);
         }
 
         if (inflectionJSON.mood) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.mood].get(
             inflectionJSON.mood.$, inflectionJSON.mood.order);
         }
 
         if (inflectionJSON.pers) {
+          useInflection = true;
           inflection.feature = mappingData[Feature.types.person].get(
             inflectionJSON.pers.$, inflectionJSON.pers.order);
         }
-
-        inflections.push(inflection);
+        // we only use the inflection if it tells us something the
+        // dictionary details do not
+        if (useInflection) {
+          inflections.push(inflection);
+        }
       }
       for (let lex of lexemeSet) {
         lex.inflections = inflections;
