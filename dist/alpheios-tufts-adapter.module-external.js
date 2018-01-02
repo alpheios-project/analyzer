@@ -94,6 +94,19 @@ class ImportData {
     }
     // may be overridden by specific engine use via setLemmaParser
     this.parseLemma = function (lemma) { return new Lemma(lemma, this.language.toCode()) };
+    // may be overridden by specific engine use via setPropertyParser - default just returns the property value
+    // as a list
+    this.parseProperty = function (propertyName, propertyValue) {
+      let propertyValues = [];
+      if (propertyName === 'decl') {
+        propertyValues = propertyValue.split('&').map((p) => p.trim());
+      } else if (propertyName === 'comp' && propertyValue === 'positive') {
+        propertyValues = [];
+      } else {
+        propertyValues = [propertyValue];
+      }
+      return propertyValues
+    };
   }
 
     /**
@@ -146,6 +159,40 @@ class ImportData {
    */
   setLemmaParser (callback) {
     this.parseLemma = callback;
+  }
+
+  /**
+   * Add an engine-specific property parser
+   */
+  setPropertyParser (callback) {
+    this.parseProperty = callback;
+  }
+
+  /**
+   * map property to one or more Features and add it to the supplied model object
+   * @param {object} model the model object to which the feature will be added
+   * @param {object} inputElem the input data element
+   * @param {object} inputName the  property name in the input data
+   * @param {string} featureName the name of the feature it will be mapped to
+   */
+  mapFeature (model, inputElem, inputName, featureName) {
+    let mapped = [];
+    let values = [];
+    if (inputElem[inputName]) {
+      values = this.parseProperty(inputName, inputElem[inputName].$);
+    }
+    for (let value of values) {
+      let features = this[Feature.types[featureName]].get(
+        value, inputElem[inputName].order);
+      if (Array.isArray(features)) {
+        mapped.push(...features);
+      } else {
+        mapped.push(features);
+      }
+    }
+    if (mapped.length > 0) {
+      model.feature = mapped;
+    }
   }
 }
 
@@ -382,10 +429,7 @@ class TuftsAdapter extends BaseAdapter {
         let lemma = mappingData.parseLemma(elem.hdwd ? elem.hdwd.$ : elem.$, language);
         lemmas.push(lemma);
         for (let feature of features) {
-          if (elem[feature[0]]) {
-            lemma.feature = mappingData[Feature.types[feature[1]]].get(
-              elem[feature[0]].$, elem[feature[0]].order);
-          }
+          mappingData.mapFeature(lemma, elem, ...feature);
         }
         let meanings = lexeme.rest.entry.mean;
         if (!Array.isArray(meanings)) {
@@ -413,7 +457,6 @@ class TuftsAdapter extends BaseAdapter {
       }
       let inflections = [];
       for (let inflectionJSON of inflectionsJSON) {
-        let useInflection = false;
         let inflection = new Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode());
         if (inflectionJSON.term.suff) {
                     // Set suffix if provided by a morphological analyzer
@@ -421,97 +464,41 @@ class TuftsAdapter extends BaseAdapter {
         }
 
         if (inflectionJSON.xmpl) {
-          useInflection = true;
           inflection.example = inflectionJSON.xmpl.$;
         }
-                // Parse whatever grammatical features we're interested in
-        if (inflectionJSON.pofs) {
-          inflection.feature = mappingData[Feature.types.part].get(
-            inflectionJSON.pofs.$, inflectionJSON.pofs.order);
-          // inflection pofs can provide missing lemma pofs
-          for (let lemma of lemmas) {
-            if (!lemma.features[Feature.types.part]) {
-              lemma.feature = mappingData[Feature.types.part].get(
-                inflectionJSON.pofs.$, inflectionJSON.pofs.order);
-            }
-          }
-        }
-
-        if (inflectionJSON.case) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.grmCase].get(
-            inflectionJSON.case.$, inflectionJSON.case.order);
-        }
-
-        if (inflectionJSON.decl) {
-          inflection.feature = mappingData[Feature.types.declension].get(
-            inflectionJSON.decl.$, inflectionJSON.decl.order);
-          // inflection decl can provide lemma decl
-          for (let lemma of lemmas) {
-            if (!lemma.features[Feature.types.declension]) {
-              lemma.feature = mappingData[Feature.types.declension].get(
-                inflectionJSON.decl.$, inflectionJSON.decl.order);
-            }
-          }
-        }
-
-        if (inflectionJSON.num) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.number].get(
-            inflectionJSON.num.$, inflectionJSON.num.order);
-        }
-
-        if (inflectionJSON.gend) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.gender].get(
-            inflectionJSON.gend.$, inflectionJSON.gend.order);
-        }
-
-        if (inflectionJSON.conj) {
-          inflection.feature = mappingData[Feature.types.conjugation].get(
-            inflectionJSON.conj.$, inflectionJSON.conj.order);
-          // inflection conj can provide lemma conj
-          for (let lemma of lemmas) {
-            if (!lemma.features[Feature.types.conjugation]) {
-              lemma.feature = mappingData[Feature.types.conjugation].get(
-                inflectionJSON.conj.$, inflectionJSON.conj.order);
-            }
-          }
-        }
-
-        if (inflectionJSON.tense) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.tense].get(
-            inflectionJSON.tense.$, inflectionJSON.tense.order);
-        }
-
-        if (inflectionJSON.voice) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.voice].get(
-            inflectionJSON.voice.$, inflectionJSON.voice.order);
-        }
-
-        if (inflectionJSON.mood) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.mood].get(
-            inflectionJSON.mood.$, inflectionJSON.mood.order);
-        }
-
-        if (inflectionJSON.pers) {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.person].get(
-            inflectionJSON.pers.$, inflectionJSON.pers.order);
-        }
-
-        if (inflectionJSON.comp && inflectionJSON.comp !== 'positive') {
-          useInflection = true;
-          inflection.feature = mappingData[Feature.types.comparative].get(
-            inflectionJSON.comp.$, inflectionJSON.comp.order);
-        }
-        // we only use the inflection if it tells us something the
-        // dictionary details do not
-        if (useInflection) {
+        // Parse whatever grammatical features we're interested in
+        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part');
+        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase');
+        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension');
+        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number');
+        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender');
+        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation');
+        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense');
+        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice');
+        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood');
+        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person');
+        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison');
+        // we only use the inflection if it tells us something the dictionary details do not
+        if (inflection[Feature.types.grmCase] ||
+          inflection[Feature.types.tense] ||
+          inflection[Feature.types.mood] ||
+          inflection[Feature.types.voice] ||
+          inflection[Feature.types.person] ||
+          inflection[Feature.types.comparison] ||
+          inflection[Feature.types.example]) {
           inflections.push(inflection);
+        }
+        // inflection can provide lemma decl, pofs, conj
+        for (let lemma of lemmas) {
+          if (!lemma.features[Feature.types.declension]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'decl', 'declension');
+          }
+          if (!lemma.features[Feature.types.part]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'pofs', 'part');
+          }
+          if (!lemma.features[Feature.types.conjugation]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'conj', 'conjugation');
+          }
         }
       }
       for (let lex of lexemeSet) {

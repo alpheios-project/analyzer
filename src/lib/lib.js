@@ -23,6 +23,19 @@ class ImportData {
     }
     // may be overridden by specific engine use via setLemmaParser
     this.parseLemma = function (lemma) { return new Models.Lemma(lemma, this.language.toCode()) }
+    // may be overridden by specific engine use via setPropertyParser - default just returns the property value
+    // as a list
+    this.parseProperty = function (propertyName, propertyValue) {
+      let propertyValues = []
+      if (propertyName === 'decl') {
+        propertyValues = propertyValue.split('&').map((p) => p.trim())
+      } else if (propertyName === 'comp' && propertyValue === 'positive') {
+        propertyValues = []
+      } else {
+        propertyValues = [propertyValue]
+      }
+      return propertyValues
+    }
   }
 
     /**
@@ -75,6 +88,40 @@ class ImportData {
    */
   setLemmaParser (callback) {
     this.parseLemma = callback
+  }
+
+  /**
+   * Add an engine-specific property parser
+   */
+  setPropertyParser (callback) {
+    this.parseProperty = callback
+  }
+
+  /**
+   * map property to one or more Features and add it to the supplied model object
+   * @param {object} model the model object to which the feature will be added
+   * @param {object} inputElem the input data element
+   * @param {object} inputName the  property name in the input data
+   * @param {string} featureName the name of the feature it will be mapped to
+   */
+  mapFeature (model, inputElem, inputName, featureName) {
+    let mapped = []
+    let values = []
+    if (inputElem[inputName]) {
+      values = this.parseProperty(inputName, inputElem[inputName].$)
+    }
+    for (let value of values) {
+      let features = this[Models.Feature.types[featureName]].get(
+        value, inputElem[inputName].order)
+      if (Array.isArray(features)) {
+        mapped.push(...features)
+      } else {
+        mapped.push(features)
+      }
+    }
+    if (mapped.length > 0) {
+      model.feature = mapped
+    }
   }
 }
 export default ImportData
