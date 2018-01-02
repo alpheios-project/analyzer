@@ -1886,8 +1886,7 @@ class Lemma {
     this.features[type] = [];
     for (let element of data) {
       if (!(element instanceof Feature)) {
-        console.log(element);
-        throw new Error(`feature data must be a Feature object.${element}`)
+        throw new Error('feature data must be a Feature object.')
       }
 
       if (element.languageID !== this.languageID) {
@@ -2328,7 +2327,7 @@ class ImportData {
     }
     for (let value of values) {
       let features = this[Feature.types[featureName]].get(
-        value, inputElem[inputName].order);
+        value, inputElem[inputName].order, allowUnknownValues);
       if (Array.isArray(features)) {
         mapped.push(...features);
       } else {

@@ -119,7 +119,7 @@ class ImportData {
     }
     for (let value of values) {
       let features = this[Models.Feature.types[featureName]].get(
-        value, inputElem[inputName].order)
+        value, inputElem[inputName].order, allowUnknownValues)
       if (Array.isArray(features)) {
         mapped.push(...features)
       } else {
