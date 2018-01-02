@@ -502,6 +502,12 @@ class TuftsAdapter extends BaseAdapter {
           inflection.feature = mappingData[Feature.types.person].get(
             inflectionJSON.pers.$, inflectionJSON.pers.order);
         }
+
+        if (inflectionJSON.comp && inflectionJSON.comp !== 'positive') {
+          useInflection = true;
+          inflection.feature = mappingData[Feature.types.comparative].get(
+            inflectionJSON.comp.$, inflectionJSON.comp.order);
+        }
         // we only use the inflection if it tells us something the
         // dictionary details do not
         if (useInflection) {
