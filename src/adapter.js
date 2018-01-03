@@ -158,7 +158,7 @@ class TuftsAdapter extends BaseAdapter {
         } else {
           for (let meaning of meanings) {
             let lang = meaning.lang ? meaning.lang : 'eng'
-            shortdefs.push(Models.ResourceProvider.getProxy(new Models.Definition(meaning.$, lang, 'text/plain')))
+            shortdefs.push(Models.ResourceProvider.getProxy(provider, new Models.Definition(meaning.$, lang, 'text/plain')))
           }
         }
         let lexmodel = new Models.Lexeme(lemma, [])

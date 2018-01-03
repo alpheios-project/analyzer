@@ -2602,7 +2602,7 @@ class TuftsAdapter extends BaseAdapter {
         } else {
           for (let meaning of meanings) {
             let lang = meaning.lang ? meaning.lang : 'eng';
-            shortdefs.push(ResourceProvider.getProxy(new Definition(meaning.$, lang, 'text/plain')));
+            shortdefs.push(ResourceProvider.getProxy(provider, new Definition(meaning.$, lang, 'text/plain')));
           }
         }
         let lexmodel = new Lexeme(lemma, []);
