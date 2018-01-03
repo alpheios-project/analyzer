@@ -2566,7 +2566,11 @@ class TuftsAdapter extends BaseAdapter {
         let shortdefs = [];
         let index = entry[0];
         let elem = entry[1];
-        let lemma = mappingData.parseLemma(elem.hdwd ? elem.hdwd.$ : elem.$, language);
+        let lemmaText = elem.hdwd ? elem.hdwd.$ : elem.$;
+        if (!lemmaText || !language) {
+          continue
+        }
+        let lemma = mappingData.parseLemma(lemmaText, language);
         lemmas.push(lemma);
         for (let feature of features) {
           mappingData.mapFeature(lemma, elem, ...feature, this.config.allowUnknownValues);
