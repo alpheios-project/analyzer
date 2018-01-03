@@ -476,14 +476,15 @@ var constants = Object.freeze({
 });
 
 class Definition {
-  constructor (text, language, format) {
+  constructor (text, language, format, lemmaText) {
     this.text = text;
     this.language = language;
     this.format = format;
+    this.lemmaText = lemmaText;
   }
 
   static readObject (jsonObject) {
-    return new Definition(jsonObject.text, jsonObject.language, jsonObject.format)
+    return new Definition(jsonObject.text, jsonObject.language, jsonObject.format, jsonObject.lemmaText)
   }
 }
 
@@ -2597,12 +2598,14 @@ class TuftsAdapter extends BaseAdapter {
             let meaning = meanings[index];
             // TODO: convert a source-specific language code to ISO 639-3 if don't match
             let lang = meaning.lang ? meaning.lang : 'eng';
-            shortdefs.push(ResourceProvider.getProxy(provider, new Definition(meaning.$, lang, 'text/plain')));
+            shortdefs.push(ResourceProvider.getProxy(provider,
+              new Definition(meaning.$, lang, 'text/plain', lemmas[index].word)));
           }
         } else {
           for (let meaning of meanings) {
             let lang = meaning.lang ? meaning.lang : 'eng';
-            shortdefs.push(ResourceProvider.getProxy(provider, new Definition(meaning.$, lang, 'text/plain')));
+            shortdefs.push(ResourceProvider.getProxy(provider,
+              new Definition(meaning.$, lang, 'text/plain', lemma.word)));
           }
         }
         let lexmodel = new Lexeme(lemma, []);

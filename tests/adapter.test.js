@@ -109,6 +109,7 @@ describe('TuftsAdapter object', () => {
     expect(homonym.lexemes[4].meaning.shortDefs.length).toEqual(1)
     expect(homonym.lexemes[4].lemma.principalParts).toEqual(['conditus', 'condita', 'conditum'])
     expect(homonym.lexemes[4].meaning.shortDefs[0].text).toEqual('preserved, kept in store; hidden, concealed, secret; sunken (eyes);')
+    expect(homonym.lexemes[4].meaning.shortDefs[0].lemmaText).toEqual('conditus')
     expect(homonym.lexemes[4].inflections.length).toEqual(4)
     expect(homonym.lexemes[0].meaning.shortDefs.length).toEqual(3)
   })
