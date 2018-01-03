@@ -62,7 +62,7 @@ class ImportData {
             language.features[featureName].hasUnrestrictedValue()) {
           mappedValue = language.features[featureName].get(providerValue, sortOrder)
         } else {
-          let message = `${allowUnknownValues} Unknown value "${providerValue}" of feature "${featureName}" for ${language}.`
+          let message = `Unknown value "${providerValue}" of feature "${featureName}" for ${language} (allowed = ${allowUnknownValues})`
           if (allowUnknownValues) {
             console.log(message)
             mappedValue = language.features[featureName].get(providerValue, sortOrder)

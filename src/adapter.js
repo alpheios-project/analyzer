@@ -88,7 +88,7 @@ class TuftsAdapter extends BaseAdapter {
         inflectionsJSON = [inflectionsJSON]
       }
       let lemmaElements
-      if (lexeme.rest.entry.dict) {
+      if ((lexeme.rest.entry.dict && lexeme.rest.entry.dict.hdwd) || (Array.isArray(lexeme.rest.entry.dict) && lexeme.rest.entry.dict[0].hdwd)) {
         if (Array.isArray(lexeme.rest.entry.dict)) {
           lemmaElements = lexeme.rest.entry.dict
         } else {
@@ -122,7 +122,18 @@ class TuftsAdapter extends BaseAdapter {
         let shortdefs = []
         let index = entry[0]
         let elem = entry[1]
-        let lemmaText = elem.hdwd ? elem.hdwd.$ : elem.$
+        let lemmaText
+        if (elem.hdwd) {
+          lemmaText = elem.hdwd.$
+        } else {
+          // term
+          if (elem.stem) {
+            lemmaText = elem.stem.$
+          }
+          if (elem.suff) {
+            lemmaText += elem.suff.$
+          }
+        }
         if (!lemmaText || !language) {
           continue
         }
@@ -154,6 +165,9 @@ class TuftsAdapter extends BaseAdapter {
 
         lexmodel.meaning.appendShortDefs(shortdefs)
         lexemeSet.push(Models.ResourceProvider.getProxy(provider, lexmodel))
+      }
+      if (lemmas.length === 0) {
+        continue
       }
       let inflections = []
       for (let inflectionJSON of inflectionsJSON) {

@@ -111,4 +111,12 @@ describe('TuftsAdapter object', () => {
     expect(homonym.lexemes[4].inflections.length).toEqual(4)
     expect(homonym.lexemes[0].meaning.shortDefs.length).toEqual(3)
   })
+
+  test('lemma from infl', () => {
+    let adapter = new TuftsAdapter()
+    let data = require('../src/lib/engine/data/latin_sui.json')
+    let homonym = adapter.transform(data)
+    expect(homonym.lexemes.length).toEqual(6)
+    expect(homonym.lexemes[5].lemma.word).toEqual('sui')
+  })
 })
