@@ -11,6 +11,7 @@ class ImportData {
     /**
      * Creates an InmportData object for the language provided.
      * @param {Models.LanguageModel} language - A language of the import data.
+     * @param {string} engine - engine code
      */
   constructor (language, engine) {
     'use strict'
@@ -23,6 +24,19 @@ class ImportData {
     }
     // may be overridden by specific engine use via setLemmaParser
     this.parseLemma = function (lemma) { return new Models.Lemma(lemma, this.language.toCode()) }
+    // may be overridden by specific engine use via setPropertyParser - default just returns the property value
+    // as a list
+    this.parseProperty = function (propertyName, propertyValue) {
+      let propertyValues = []
+      if (propertyName === 'decl') {
+        propertyValues = propertyValue.split('&').map((p) => p.trim())
+      } else if (propertyName === 'comp' && propertyValue === 'positive') {
+        propertyValues = []
+      } else {
+        propertyValues = [propertyValue]
+      }
+      return propertyValues
+    }
   }
 
     /**
@@ -35,24 +49,39 @@ class ImportData {
     let language = this.language
 
     this[featureName].add = function add (providerValue, alpheiosValue) {
-      'use strict'
       this[providerValue] = alpheiosValue
       return this
     }
 
-    this[featureName].get = function get (providerValue) {
-      'use strict'
+    this[featureName].get = function get (providerValue, sortOrder = 1, allowUnknownValues = false) {
+      let mappedValue = []
       if (!this.importer.has(providerValue)) {
-        // if the providerValue matches the model value return that
-        if (language.features[featureName][providerValue]) {
-          return language.features[featureName][providerValue]
+        // if the providerValue matches the model value or the model value
+        // is unrestricted, return a feature with the providerValue and order
+        if (language.features[featureName][providerValue] ||
+            language.features[featureName].hasUnrestrictedValue()) {
+          mappedValue = language.features[featureName].get(providerValue, sortOrder)
         } else {
-          throw new Error("Skipping an unknown value '" +
-                    providerValue + "' of a grammatical feature '" + featureName + "' of " + language + ' language.')
+          let message = `Unknown value "${providerValue}" of feature "${featureName}" for ${language} (allowed = ${allowUnknownValues})`
+          if (allowUnknownValues) {
+            console.log(message)
+            mappedValue = language.features[featureName].get(providerValue, sortOrder)
+          } else {
+            throw new Error(message)
+          }
         }
       } else {
-        return this.importer.get(providerValue)
+        let tempValue = this.importer.get(providerValue)
+        if (Array.isArray(tempValue)) {
+          mappedValue = []
+          for (let feature of tempValue) {
+            mappedValue.push(language.features[featureName].get(feature.value, sortOrder))
+          }
+        } else {
+          mappedValue = language.features[featureName].get(tempValue.value, sortOrder)
+        }
       }
+      return mappedValue
     }
 
     this[featureName].importer = new Models.FeatureImporter()
@@ -65,6 +94,41 @@ class ImportData {
    */
   setLemmaParser (callback) {
     this.parseLemma = callback
+  }
+
+  /**
+   * Add an engine-specific property parser
+   */
+  setPropertyParser (callback) {
+    this.parseProperty = callback
+  }
+
+  /**
+   * map property to one or more Features and add it to the supplied model object
+   * @param {object} model the model object to which the feature will be added
+   * @param {object} inputElem the input data element
+   * @param {object} inputName the  property name in the input data
+   * @param {string} featureName the name of the feature it will be mapped to
+   * @param {boolean} allowUnknownValues flag to indicate if unknown values are allowed
+   */
+  mapFeature (model, inputElem, inputName, featureName, allowUnknownValues) {
+    let mapped = []
+    let values = []
+    if (inputElem[inputName]) {
+      values = this.parseProperty(inputName, inputElem[inputName].$)
+    }
+    for (let value of values) {
+      let features = this[Models.Feature.types[featureName]].get(
+        value, inputElem[inputName].order, allowUnknownValues)
+      if (Array.isArray(features)) {
+        mapped.push(...features)
+      } else {
+        mapped.push(features)
+      }
+    }
+    if (mapped.length > 0) {
+      model.feature = mapped
+    }
   }
 }
 export default ImportData

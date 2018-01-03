@@ -11,20 +11,16 @@ class TuftsAdapter extends BaseAdapter {
   /**
    * A Morph Client Adapter for the Tufts Morphology Service
    * @constructor
-   * @param {object} engine an object which maps language code to desired engine code
-                            for that language. E.g. { lat : whitakerLat, grc: morpheusgrc }
+   * @param {object} config configuraiton object
    */
-  constructor (config = null) {
+  constructor (config = {}) {
     super()
-    if (config == null) {
-      try {
-        this.config = JSON.parse(DefaultConfig)
-      } catch (e) {
-        this.config = DefaultConfig
-      }
-    } else {
-      this.config = config
+    try {
+      this.config = JSON.parse(DefaultConfig)
+    } catch (e) {
+      this.config = Object.assign({}, DefaultConfig)
     }
+    Object.assign(this.config, config)
     this.engineMap = new Map(([ Whitakers, Morpheusgrc, Aramorph, Hazm ]).map((e) => { return [ e.engine, e ] }))
   }
 
@@ -76,34 +72,104 @@ class TuftsAdapter extends BaseAdapter {
              */
       annotationBody = [annotationBody]
     }
-    let provider
+    let providerUri = jsonObj.RDF.Annotation.creator.Agent.about
+    let providerRights = ''
+    if (jsonObj.RDF.Annotation.rights) {
+      providerRights = jsonObj.RDF.Annotation.rights.$
+    }
+    let provider = new Models.ResourceProvider(providerUri, providerRights)
     for (let lexeme of annotationBody) {
-            // Get importer based on the language
-      let language = lexeme.rest.entry.dict.hdwd.lang
-      let mappingData = this.getEngineLanguageMap(language)
-      let lemma = mappingData.parseLemma(lexeme.rest.entry.dict.hdwd.$, language)
-
-      if (!provider) {
-        let providerUri = jsonObj.RDF.Annotation.about
-        let providerRights = ''
-        if (jsonObj.RDF.Annotation.rights) {
-          providerRights = jsonObj.RDF.Annotation.rights.$
-        }
-        provider = new Models.ResourceProvider(providerUri, providerRights)
-      }
-      let meaning = lexeme.rest.entry.mean
-      let shortdef
-      if (meaning) {
-        // TODO: convert a source-specific language code to ISO 639-3 if don't match
-        let lang = meaning.lang ? meaning.lang : 'eng'
-        shortdef = new Models.Definition(meaning.$, lang, 'text/plain')
-      }
-      let inflections = []
       let inflectionsJSON = lexeme.rest.entry.infl
-      if (!Array.isArray(inflectionsJSON)) {
-                // If only one inflection returned, it is a single object, not an array of objects. Convert it to an array for uniformity.
+      if (!inflectionsJSON) {
+        inflectionsJSON = []
+      } else if (!Array.isArray(inflectionsJSON)) {
+        // If only one inflection returned, it is a single object, not an array of objects.
+        // Convert it to an array for uniformity.
         inflectionsJSON = [inflectionsJSON]
       }
+      let lemmaElements
+      if ((lexeme.rest.entry.dict && lexeme.rest.entry.dict.hdwd) || (Array.isArray(lexeme.rest.entry.dict) && lexeme.rest.entry.dict[0].hdwd)) {
+        if (Array.isArray(lexeme.rest.entry.dict)) {
+          lemmaElements = lexeme.rest.entry.dict
+        } else {
+          lemmaElements = [lexeme.rest.entry.dict]
+        }
+      } else if (inflectionsJSON.length > 0 && inflectionsJSON[0].term) {
+        lemmaElements = [inflectionsJSON[0].term]
+      }
+      // in rare cases (e.g. conditum in Whitakers) multiple dict entries
+      // exist - always use the lemma and language from the first
+      let language = lemmaElements[0].hdwd ? lemmaElements[0].hdwd.lang : lemmaElements[0].lang
+      // Get importer based on the language
+      let mappingData = this.getEngineLanguageMap(language)
+      let features = [
+        ['pofs', 'part'],
+        ['case', 'grmCase'],
+        ['gend', 'gender'],
+        ['decl', 'declension'],
+        ['conj', 'conjugation'],
+        ['area', 'area'],
+        ['age', 'age'],
+        ['geo', 'geo'],
+        ['freq', 'frequency'],
+        ['note', 'note'],
+        ['pron', 'pronunciation'],
+        ['src', 'source']
+      ]
+      let lemmas = []
+      let lexemeSet = []
+      for (let entry of lemmaElements.entries()) {
+        let shortdefs = []
+        let index = entry[0]
+        let elem = entry[1]
+        let lemmaText
+        if (elem.hdwd) {
+          lemmaText = elem.hdwd.$
+        } else {
+          // term
+          if (elem.stem) {
+            lemmaText = elem.stem.$
+          }
+          if (elem.suff) {
+            lemmaText += elem.suff.$
+          }
+        }
+        if (!lemmaText || !language) {
+          continue
+        }
+        let lemma = mappingData.parseLemma(lemmaText, language)
+        lemmas.push(lemma)
+        for (let feature of features) {
+          mappingData.mapFeature(lemma, elem, ...feature, this.config.allowUnknownValues)
+        }
+        let meanings = lexeme.rest.entry.mean
+        if (!Array.isArray(meanings)) {
+          meanings = [meanings]
+        }
+        meanings = meanings.filter((m) => m)
+        // if we have multiple dictionary elements, take the meaning with the matching index
+        if (lemmaElements.length > 1) {
+          if (meanings && meanings[index]) {
+            let meaning = meanings[index]
+            // TODO: convert a source-specific language code to ISO 639-3 if don't match
+            let lang = meaning.lang ? meaning.lang : 'eng'
+            shortdefs.push(new Models.Definition(meaning.$, lang, 'text/plain'))
+          }
+        } else {
+          for (let meaning of meanings) {
+            let lang = meaning.lang ? meaning.lang : 'eng'
+            shortdefs.push(new Models.Definition(meaning.$, lang, 'text/plain'))
+          }
+        }
+        let lexmodel = new Models.Lexeme(lemma, [])
+
+        lexmodel.meaning.appendShortDefs(shortdefs)
+        lexemeSet.push(Models.ResourceProvider.getProxy(provider, lexmodel))
+      }
+      if (lemmas.length === 0) {
+        continue
+      }
+      let inflections = []
       for (let inflectionJSON of inflectionsJSON) {
         let inflection = new Models.Inflection(inflectionJSON.term.stem.$, mappingData.language.toCode())
         if (inflectionJSON.term.suff) {
@@ -114,54 +180,48 @@ class TuftsAdapter extends BaseAdapter {
         if (inflectionJSON.xmpl) {
           inflection.example = inflectionJSON.xmpl.$
         }
-                // Parse whatever grammatical features we're interested in
-        if (inflectionJSON.pofs) {
-          inflection.feature = mappingData[Models.Feature.types.part].get(inflectionJSON.pofs.$)
+        // Parse whatever grammatical features we're interested in
+        mappingData.mapFeature(inflection, inflectionJSON, 'pofs', 'part', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'case', 'grmCase', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'decl', 'declension', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'num', 'number', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'gend', 'gender', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'conj', 'conjugation', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'tense', 'tense', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'voice', 'voice', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person', this.config.allowUnknownValues)
+        mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison', this.config.allowUnknownValues)
+        // we only use the inflection if it tells us something the dictionary details do not
+        if (inflection[Models.Feature.types.grmCase] ||
+          inflection[Models.Feature.types.tense] ||
+          inflection[Models.Feature.types.mood] ||
+          inflection[Models.Feature.types.voice] ||
+          inflection[Models.Feature.types.person] ||
+          inflection[Models.Feature.types.comparison] ||
+          inflection[Models.Feature.types.example]) {
+          inflections.push(inflection)
         }
-
-        if (inflectionJSON.case) {
-          inflection.feature = mappingData[Models.Feature.types.grmCase].get(inflectionJSON.case.$)
+        // inflection can provide lemma decl, pofs, conj
+        for (let lemma of lemmas) {
+          if (!lemma.features[Models.Feature.types.declension]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'decl', 'declension', this.config.allowUnknownValues)
+          }
+          if (!lemma.features[Models.Feature.types.part]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'pofs', 'part', this.config.allowUnknownValues)
+          }
+          if (!lemma.features[Models.Feature.types.conjugation]) {
+            mappingData.mapFeature(lemma, inflectionJSON, 'conj', 'conjugation', this.config.allowUnknownValues)
+          }
         }
-
-        if (inflectionJSON.decl) {
-          inflection.feature = mappingData[Models.Feature.types.declension].get(inflectionJSON.decl.$)
-        }
-
-        if (inflectionJSON.num) {
-          inflection.feature = mappingData[Models.Feature.types.number].get(inflectionJSON.num.$)
-        }
-
-        if (inflectionJSON.gend) {
-          inflection.feature = mappingData[Models.Feature.types.gender].get(inflectionJSON.gend.$)
-        }
-
-        if (inflectionJSON.conj) {
-          inflection.feature = mappingData[Models.Feature.types.conjugation].get(inflectionJSON.conj.$)
-        }
-
-        if (inflectionJSON.tense) {
-          inflection.feature = mappingData[Models.Feature.types.tense].get(inflectionJSON.tense.$)
-        }
-
-        if (inflectionJSON.voice) {
-          inflection.feature = mappingData[Models.Feature.types.voice].get(inflectionJSON.voice.$)
-        }
-
-        if (inflectionJSON.mood) {
-          inflection.feature = mappingData[Models.Feature.types.mood].get(inflectionJSON.mood.$)
-        }
-
-        if (inflectionJSON.pers) {
-          inflection.feature = mappingData[Models.Feature.types.person].get(inflectionJSON.pers.$)
-        }
-
-        inflections.push(inflection)
       }
-
-      let lexmodel = new Models.Lexeme(lemma, inflections)
-      lexmodel.meaning.appendShortDefs(shortdef)
-      let providedLexeme = Models.ResourceProvider.getProxy(provider, lexmodel)
-      lexemes.push(providedLexeme)
+      for (let lex of lexemeSet) {
+        // we are going to skip lexemes if their lemma has no part of speech identified
+        if (lex.lemma.features[Models.Feature.types.part]) {
+          lex.inflections = inflections
+          lexemes.push(lex)
+        }
+      }
     }
     return new Models.Homonym(lexemes, targetWord)
   }
