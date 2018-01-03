@@ -104,6 +104,7 @@ describe('TuftsAdapter object', () => {
     expect(homonym.lexemes[5].meaning.shortDefs.length).toEqual(1)
     expect(homonym.lexemes[5].lemma.principalParts).toEqual(['conditus', 'condita', 'conditior', 'conditissimus'])
     expect(homonym.lexemes[5].meaning.shortDefs[0].text).toEqual('seasoned, spiced up, flavored, savory; polished, ornamented (discourse/style);')
+    expect(homonym.lexemes[5].provider).toBeTruthy()
     expect(homonym.lexemes[5].inflections.length).toEqual(4)
     expect(homonym.lexemes[4].meaning.shortDefs.length).toEqual(1)
     expect(homonym.lexemes[4].lemma.principalParts).toEqual(['conditus', 'condita', 'conditum'])

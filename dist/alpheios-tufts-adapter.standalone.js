@@ -2597,12 +2597,12 @@ class TuftsAdapter extends BaseAdapter {
             let meaning = meanings[index];
             // TODO: convert a source-specific language code to ISO 639-3 if don't match
             let lang = meaning.lang ? meaning.lang : 'eng';
-            shortdefs.push(new Definition(meaning.$, lang, 'text/plain'));
+            shortdefs.push(ResourceProvider.getProxy(provider, new Definition(meaning.$, lang, 'text/plain')));
           }
         } else {
           for (let meaning of meanings) {
             let lang = meaning.lang ? meaning.lang : 'eng';
-            shortdefs.push(new Definition(meaning.$, lang, 'text/plain'));
+            shortdefs.push(ResourceProvider.getProxy(new Definition(meaning.$, lang, 'text/plain')));
           }
         }
         let lexmodel = new Lexeme(lemma, []);
