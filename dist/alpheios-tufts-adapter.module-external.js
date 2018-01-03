@@ -523,9 +523,12 @@ class TuftsAdapter extends BaseAdapter {
         }
       }
       for (let lex of lexemeSet) {
-        lex.inflections = inflections;
+        // we are going to skip lexemes if their lemma has no part of speech identified
+        if (lex.lemma.features[Feature.types.part]) {
+          lex.inflections = inflections;
+          lexemes.push(lex);
+        }
       }
-      lexemes.push(...lexemeSet);
     }
     return new Homonym(lexemes, targetWord)
   }
