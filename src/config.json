@@ -5,6 +5,6 @@
     "ara": ["aramorph"],
     "per": ["hazm"]
   },
-  "url": "http://morph.alpheios.net/api/v1/analysis/word?word=r_WORD&engine=r_ENGINE&lang=r_LANG",
+  "url": "https://morph.alpheios.net/api/v1/analysis/word?word=r_WORD&engine=r_ENGINE&lang=r_LANG",
   "allowUnknownValues": true
 }
