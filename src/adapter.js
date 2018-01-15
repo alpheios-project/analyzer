@@ -70,7 +70,11 @@ class TuftsAdapter extends BaseAdapter {
             If only one lexeme is returned, Annotation Body will not be an array but rather a single object.
             Let's convert it to an array so we can work with it in the same way no matter what format it is.
              */
-      annotationBody = [annotationBody]
+      if (annotationBody) {
+        annotationBody = [annotationBody]
+      } else {
+        annotationBody = []
+      }
     }
     let providerUri = jsonObj.RDF.Annotation.creator.Agent.about
     let providerRights = ''
