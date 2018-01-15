@@ -536,7 +536,11 @@ class TuftsAdapter extends BaseAdapter {
         }
       }
     }
-    return new Homonym(lexemes, targetWord)
+    if (lexemes.length > 0) {
+      return new Homonym(lexemes, targetWord)
+    } else {
+      return undefined
+    }
   }
 
   async getHomonym (lang, word) {
