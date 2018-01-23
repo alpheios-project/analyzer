@@ -29,8 +29,16 @@ class BaseAdapter {
       if (url) {
         window.fetch(url).then(
             function (response) {
-              let json = response.json();
-              resolve(json);
+              try {
+                if (response.ok) {
+                  let json = response.json();
+                  resolve(json);
+                } else {
+                  reject(response.statusText);
+                }
+              } catch (error) {
+                reject(error);
+              }
             }
           ).catch((error) => {
             reject(error);
