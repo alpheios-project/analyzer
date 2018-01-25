@@ -118,6 +118,9 @@ class ImportData {
       values = this.parseProperty(inputName, inputElem[inputName].$)
     }
     for (let value of values) {
+      if (inputName === 'pers') {
+        console.log(`map value ${value}`)
+      }
       let features = this[Models.Feature.types[featureName]].get(
         value, inputElem[inputName].order, allowUnknownValues)
       if (Array.isArray(features)) {

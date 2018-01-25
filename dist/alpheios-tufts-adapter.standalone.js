@@ -280,6 +280,13 @@ const VOICE_CIRCUMSTANTIAL = 'circumstantial';
 const VOICE_DEPONENT = 'deponent';
 const TYPE_IRREGULAR = 'irregular';
 const TYPE_REGULAR = 'regular';
+// Classes (of pronouns in Latin)
+const CLASS_PERSONAL = 'personal';
+const CLASS_REFLEXIVE = 'reflexive';
+const CLASS_POSSESSIVE = 'possessive';
+const CLASS_DEMONSTRATIVE = 'demonstrative';
+const CLASS_RELATIVE = 'relative';
+const CLASS_INTERROGATIVE = 'interrogative';
 /* eslit-enable no-unused-vars */
 
 
@@ -480,7 +487,13 @@ var constants = Object.freeze({
 	VOICE_CIRCUMSTANTIAL: VOICE_CIRCUMSTANTIAL,
 	VOICE_DEPONENT: VOICE_DEPONENT,
 	TYPE_IRREGULAR: TYPE_IRREGULAR,
-	TYPE_REGULAR: TYPE_REGULAR
+	TYPE_REGULAR: TYPE_REGULAR,
+	CLASS_PERSONAL: CLASS_PERSONAL,
+	CLASS_REFLEXIVE: CLASS_REFLEXIVE,
+	CLASS_POSSESSIVE: CLASS_POSSESSIVE,
+	CLASS_DEMONSTRATIVE: CLASS_DEMONSTRATIVE,
+	CLASS_RELATIVE: CLASS_RELATIVE,
+	CLASS_INTERROGATIVE: CLASS_INTERROGATIVE
 });
 
 class Definition {
@@ -630,7 +643,7 @@ class FeatureType {
      * If an empty array is provided, there will be no
      * allowed values as well as no ordering (can be used for items that do not need or have a simple order,
      * such as footnotes).
-     * @param {string} language - A language of a feature, allowed values are specified in 'languages' object.
+     * @param {String | Symbol} language - A language of a feature type.
      */
   constructor (type, values, language) {
     if (!Feature.types.isAllowed(type)) {
@@ -644,12 +657,14 @@ class FeatureType {
     }
 
     this.type = type;
-    this.language = language;
+    this.languageID = undefined;
+    this.languageCode = undefined
+    ;({languageID: this.languageID, languageCode: this.languageCode} = LanguageModelFactory.getLanguageAttrs(language));
 
-        /*
-         This is a sort order index for a grammatical feature values. It is determined by the order of values in
-         a 'values' array.
-         */
+    /*
+     This is a sort order index for a grammatical feature values. It is determined by the order of values in
+     a 'values' array.
+     */
     this._orderIndex = [];
     this._orderLookup = {};
 
@@ -657,15 +672,24 @@ class FeatureType {
       this._orderIndex.push(value);
       if (Array.isArray(value)) {
         for (let element of value) {
-          this[element] = new Feature(element, this.type, this.language);
+          this[element] = new Feature(element, this.type, this.languageID);
           this._orderLookup[element] = index;
         }
       } else {
-        this[value] = new Feature(value, this.type, this.language);
+        this[value] = new Feature(value, this.type, this.languageID);
         this._orderLookup[value] = index;
       }
     }
-  };
+  }
+
+  /**
+   * This is a compatibility function for legacy code.
+   * @return {String} A language code.
+   */
+  get language () {
+    console.warn(`Please use a "languageID" instead of a "language"`);
+    return this.languageCode
+  }
 
   /**
    * test to see if this FeatureType allows unrestricted values
@@ -684,7 +708,7 @@ class FeatureType {
      */
   get (value, sortOrder = 1) {
     if (value) {
-      return new Feature(value, this.type, this.language, sortOrder)
+      return new Feature(value, this.type, this.languageID, sortOrder)
     } else {
       throw new Error('A non-empty value should be provided.')
     }
@@ -724,7 +748,7 @@ class FeatureType {
      * an array of Feature objects will be returned instead of a single Feature object, as for single feature values.
      */
   get orderedFeatures () {
-    return this.orderedValues.map((value) => new Feature(value, this.type, this.language))
+    return this.orderedValues.map((value) => new Feature(value, this.type, this.languageID))
   }
 
     /**
@@ -785,8 +809,8 @@ class FeatureType {
             throw new Error('Trying to order an element with type "' + element.type + '" that is different from "' + this.type + '".')
           }
 
-          if (element.language !== this.language) {
-            throw new Error('Trying to order an element with language "' + element.language + '" that is different from "' + this.language + '".')
+          if (!LanguageModelFactory.compareLanguages(element.languageID, this.languageID)) {
+            throw new Error(`Trying to order an element with language "${element.languageID.toString()}" that is different from "${this.languageID.toString()}"`)
           }
         }
       } else {
@@ -798,8 +822,8 @@ class FeatureType {
           throw new Error('Trying to order an element with type "' + value.type + '" that is different from "' + this.type + '".')
         }
 
-        if (value.language !== this.language) {
-          throw new Error('Trying to order an element with language "' + value.language + '" that is different from "' + this.language + '".')
+        if (!LanguageModelFactory.compareLanguages(value.languageID, this.languageID)) {
+          throw new Error(`Trying to order an element with language "${value.languageID.toString()}" that is different from "${this.languageID.toString()}"`)
         }
       }
     }
@@ -955,6 +979,12 @@ class LanguageModel {
       [FeatureType.UNRESTRICTED_VALUE], code);
     features[Feature.types.comparison] = new FeatureType(Feature.types.comparison,
       [COMP_POSITIVE, COMP_SUPERLATIVE, COMP_COMPARITIVE], code);
+    features[Feature.types.morph] = new FeatureType(Feature.types.morph,
+      [FeatureType.UNRESTRICTED_VALUE], code);
+    features[Feature.types.stemtype] = new FeatureType(Feature.types.stemtype,
+      [FeatureType.UNRESTRICTED_VALUE], code);
+    features[Feature.types.derivtype] = new FeatureType(Feature.types.derivtype,
+      [FeatureType.UNRESTRICTED_VALUE], code);
     return features
   }
 
@@ -1237,6 +1267,15 @@ class LatinLanguageModel extends LanguageModel {
   _initializeFeatures () {
     let features = super._initializeFeatures();
     let code = this.toCode();
+    features[Feature.types.grmClass] = new FeatureType(Feature.types.grmClass,
+      [ CLASS_PERSONAL,
+        CLASS_REFLEXIVE,
+        CLASS_POSSESSIVE,
+        CLASS_DEMONSTRATIVE,
+        CLASS_RELATIVE,
+        CLASS_INTERROGATIVE
+      ],
+      code);
     features[Feature.types.number] = new FeatureType(Feature.types.number, [NUM_SINGULAR, NUM_PLURAL], code);
     features[Feature.types.grmCase] = new FeatureType(Feature.types.grmCase,
       [ CASE_NOMINATIVE,
@@ -1257,12 +1296,16 @@ class LatinLanguageModel extends LanguageModel {
         TENSE_PLUPERFECT,
         TENSE_FUTURE_PERFECT
       ], code);
-    features[Feature.types.voice] = new FeatureType(Feature.types.voice, [VOICE_PASSIVE, VOICE_ACTIVE], code);
+    features[Feature.types.voice] = new FeatureType(Feature.types.voice, [VOICE_ACTIVE, VOICE_PASSIVE], code);
     features[Feature.types.mood] = new FeatureType(Feature.types.mood,
       [ MOOD_INDICATIVE,
         MOOD_SUBJUNCTIVE,
         MOOD_IMPERATIVE,
-        MOOD_PARTICIPLE
+        MOOD_PARTICIPLE,
+        MOOD_SUPINE,
+        MOOD_GERUNDIVE,
+        MOOD_PARTICIPLE,
+        MOOD_INFINITIVE
       ], code);
     features[Feature.types.conjugation] = new FeatureType(Feature.types.conjugation,
       [ ORD_1ST,
@@ -1292,25 +1335,26 @@ class LatinLanguageModel extends LanguageModel {
   /**
    * Return a normalized version of a word which can be used to compare the word for equality
    * @param {String} word the source word
-   * @returns the normalized form of the word (default version just returns the same word,
-   *          override in language-specific subclass)
+   * @returns the normalized form of the word (Latin replaces accents and special chars)
    * @type String
    */
   normalizeWord (word) {
-    word = word.replace(/[\u00c0\u00c1\u00c2\u00c3\u00c4\u0100\u0102]/g, 'A');
-    word = word.replace(/[\u00c8\u00c9\u00ca\u00cb\u0112\u0114]/g, 'E');
-    word = word.replace(/[\u00cc\u00cd\u00ce\u00cf\u012a\u012c]/g, 'I');
-    word = word.replace(/[\u00d2\u00d3\u00d4\u00df\u00d6\u014c\u014e]/g, 'O');
-    word = word.replace(/[\u00d9\u00da\u00db\u00dc\u016a\u016c]/g, 'U');
-    word = word.replace(/[\u00c6\u01e2]/g, 'AE');
-    word = word.replace(/[\u0152]/g, 'OE');
-    word = word.replace(/[\u00e0\u00e1\u00e2\u00e3\u00e4\u0101\u0103]/g, 'a');
-    word = word.replace(/[\u00e8\u00e9\u00ea\u00eb\u0113\u0115]/g, 'e');
-    word = word.replace(/[\u00ec\u00ed\u00ee\u00ef\u012b\u012d\u0129]/g, 'i');
-    word = word.replace(/[\u00f2\u00f3\u00f4\u00f5\u00f6\u014d\u014f]/g, 'o');
-    word = word.replace(/[\u00f9\u00fa\u00fb\u00fc\u016b\u016d]/g, 'u');
-    word = word.replace(/[\u00e6\u01e3]/g, 'ae');
-    word = word.replace(/[\u0153]/g, 'oe');
+    if (word) {
+      word = word.replace(/[\u00c0\u00c1\u00c2\u00c3\u00c4\u0100\u0102]/g, 'A');
+      word = word.replace(/[\u00c8\u00c9\u00ca\u00cb\u0112\u0114]/g, 'E');
+      word = word.replace(/[\u00cc\u00cd\u00ce\u00cf\u012a\u012c]/g, 'I');
+      word = word.replace(/[\u00d2\u00d3\u00d4\u00df\u00d6\u014c\u014e]/g, 'O');
+      word = word.replace(/[\u00d9\u00da\u00db\u00dc\u016a\u016c]/g, 'U');
+      word = word.replace(/[\u00c6\u01e2]/g, 'AE');
+      word = word.replace(/[\u0152]/g, 'OE');
+      word = word.replace(/[\u00e0\u00e1\u00e2\u00e3\u00e4\u0101\u0103]/g, 'a');
+      word = word.replace(/[\u00e8\u00e9\u00ea\u00eb\u0113\u0115]/g, 'e');
+      word = word.replace(/[\u00ec\u00ed\u00ee\u00ef\u012b\u012d\u0129]/g, 'i');
+      word = word.replace(/[\u00f2\u00f3\u00f4\u00f5\u00f6\u014d\u014f]/g, 'o');
+      word = word.replace(/[\u00f9\u00fa\u00fb\u00fc\u016b\u016d]/g, 'u');
+      word = word.replace(/[\u00e6\u01e3]/g, 'ae');
+      word = word.replace(/[\u0153]/g, 'oe');
+    }
     return word
   }
 
@@ -1439,7 +1483,11 @@ class GreekLanguageModel extends LanguageModel {
    */
   normalizeWord (word) {
     // we normalize greek to NFC - Normalization Form Canonical Composition
-    return word.normalize('NFC')
+    if (word) {
+      return word.normalize('NFC')
+    } else {
+      return word
+    }
   }
 
   /**
@@ -1669,8 +1717,14 @@ const MODELS = new Map([
 ]);
 
 class LanguageModelFactory {
-  static supportsLanguage (code) {
-    return MODELS.has(code)
+  /**
+   * Checks whether a language is supported
+   * @param {String | Symbol} language - Language as a language ID (Symbol) or a language code (String)
+   * @return {boolean} True if language is supported, false otherwise
+   */
+  static supportsLanguage (language) {
+    language = (typeof language === 'symbol') ? LanguageModelFactory.getLanguageCodeFromId(language) : language;
+    return MODELS.has(language)
   }
 
   static getLanguageForCode (code = null) {
@@ -1708,6 +1762,43 @@ class LanguageModelFactory {
       }
     }
   }
+
+  /**
+   * Takes either a language ID or a language code and returns an object with both an ID and a code.
+   * @param {String | Symbol} language - Either a language ID (a Symbol) or a language code (a String).
+   * @return {Object} An object with the following properties:
+   *    {Symbol} languageID
+   *    {String} languageCode
+   */
+  static getLanguageAttrs (language) {
+    if (typeof language === 'symbol') {
+      // `language` is a language ID
+      return {
+        languageID: language,
+        languageCode: LanguageModelFactory.getLanguageCodeFromId(language)
+      }
+    } else {
+      // `language` is a language code
+      return {
+        languageID: LanguageModelFactory.getLanguageIdFromCode(language),
+        languageCode: language
+      }
+    }
+  }
+
+  /**
+   * Compares two languages in either a language ID or a language code format. For this, does conversion of
+   * language IDs to language code. Because fo this, it will work even for language IDs defined in
+   * different modules
+   * @param {String | Symbol} languageA - Either a language ID (a Symbol) or a language code (a String).
+   * @param {String | Symbol} languageB - Either a language ID (a Symbol) or a language code (a String).
+   * @return {boolean} True if languages are the same, false otherwise.
+   */
+  static compareLanguages (languageA, languageB) {
+    languageA = (typeof languageA === 'symbol') ? LanguageModelFactory.getLanguageCodeFromId(languageA) : languageA;
+    languageB = (typeof languageB === 'symbol') ? LanguageModelFactory.getLanguageCodeFromId(languageB) : languageB;
+    return languageA === languageB
+  }
 }
 
 /**
@@ -1739,7 +1830,7 @@ class Feature {
      * @param {string | string[]} value - A single feature value or, if this feature could have multiple
      * values, an array of values.
      * @param {string} type - A type of the feature, allowed values are specified in 'types' object.
-     * @param {string} language - A language of a feature, allowed values are specified in 'languages' object.
+     * @param {String | Symbol} language - A language of a feature, allowed values are specified in 'languages' object.
      * @param {int} sortOrder - an integer used for sorting
      */
   constructor (value, type, language, sortOrder = 1) {
@@ -1757,24 +1848,33 @@ class Feature {
     }
     this.value = value;
     this.type = type;
-    this.language = language;
-    this.languageCode = language;
-    this.languageID = LanguageModelFactory.getLanguageIdFromCode(this.languageCode);
+    this.languageID = undefined;
+    this.languageCode = undefined
+    ;({languageID: this.languageID, languageCode: this.languageCode} = LanguageModelFactory.getLanguageAttrs(language));
     this.sortOrder = sortOrder;
-  };
+  }
+
+  /**
+   * This is a compatibility function for legacy code.
+   * @return {String} A language code.
+   */
+  get language () {
+    console.warn(`Please use a "languageID" instead of a "language"`);
+    return this.languageCode
+  }
 
   isEqual (feature) {
     if (Array.isArray(feature.value)) {
       if (!Array.isArray(this.value) || this.value.length !== feature.value.length) {
         return false
       }
-      let equal = this.type === feature.type && this.language === feature.language;
+      let equal = this.type === feature.type && LanguageModelFactory.compareLanguages(this.languageID, feature.languageID);
       equal = equal && this.value.every(function (element, index) {
         return element === feature.value[index]
       });
       return equal
     } else {
-      return this.value === feature.value && this.type === feature.type && this.language === feature.language
+      return this.value === feature.value && this.type === feature.type && LanguageModelFactory.compareLanguages(this.languageID, feature.languageID)
     }
   }
 
@@ -1820,10 +1920,13 @@ Feature.types = {
   word: 'word',
   part: 'part of speech', // Part of speech
   number: 'number',
-  grmCase: 'case',
+  'case': 'case',
+  grmCase: 'case', // A synonym of `case`
   declension: 'declension',
   gender: 'gender',
   type: 'type',
+  'class': 'class',
+  grmClass: 'class', // A synonym of `class`
   conjugation: 'conjugation',
   comparison: 'comparison',
   tense: 'tense',
@@ -1953,7 +2056,7 @@ class Inflection {
     /**
      * Initializes an Inflection object.
      * @param {string} stem - A stem of a word.
-     * @param {string} language - A word's language.
+     * @param {String | Symbol} language - A word's language.
      * @param {string} suffix - a suffix of a word
      * @param {prefix} prefix - a prefix of a word
      * @param {example} example - example
@@ -1972,7 +2075,9 @@ class Inflection {
     }
 
     this.stem = stem;
-    this.language = language;
+    this.languageID = undefined;
+    this.languageCode = undefined
+    ;({languageID: this.languageID, languageCode: this.languageCode} = LanguageModelFactory.getLanguageAttrs(language));
 
     // Suffix may not be present in every word. If missing, it will set to null.
     this.suffix = suffix;
@@ -1984,10 +2089,20 @@ class Inflection {
     this.example = example;
   }
 
+  /**
+   * This is a compatibility function for legacy code.
+   * @return {String} A language code.
+   */
+  get language () {
+    console.warn(`Please use a "languageID" instead of a "language"`);
+    return this.languageCode
+  }
+
   static readObject (jsonObject) {
     let inflection =
       new Inflection(
-        jsonObject.stem, jsonObject.language, jsonObject.suffix, jsonObject.prefix, jsonObject.example);
+        jsonObject.stem, jsonObject.languageCode, jsonObject.suffix, jsonObject.prefix, jsonObject.example);
+    inflection.languageID = LanguageModelFactory.getLanguageIdFromCode(inflection.languageCode);
     return inflection
   }
 
@@ -2012,9 +2127,9 @@ class Inflection {
         throw new Error('Inflection feature data must be a Feature object.')
       }
 
-      if (element.language !== this.language) {
-        throw new Error('Language "' + element.language + '" of a feature does not match a language "' +
-                this.language + '" of an Inflection object.')
+      if (!LanguageModelFactory.compareLanguages(element.languageID, this.languageID)) {
+        throw new Error(`Language "${element.languageID.toString()}" of a feature does not match 
+          a language "${this.languageID.toString()}" of an Inflection object.`)
       }
 
       this[type].push(element);
@@ -2359,6 +2474,9 @@ class ImportData {
       values = this.parseProperty(inputName, inputElem[inputName].$);
     }
     for (let value of values) {
+      if (inputName === 'pers') {
+        console.log(`map value ${value}`);
+      }
       let features = this[Feature.types[featureName]].get(
         value, inputElem[inputName].order, allowUnknownValues);
       if (Array.isArray(features)) {
@@ -2675,6 +2793,18 @@ class TuftsAdapter extends BaseAdapter {
         mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood', this.config.allowUnknownValues);
         mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person', this.config.allowUnknownValues);
         mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison', this.config.allowUnknownValues);
+        if (inflectionJSON.stemtype) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'stemtype', 'stemtype', this.config.allowUnknownValues);
+        }
+        if (inflectionJSON.derivtype) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'derivtype', 'derivtype', this.config.allowUnknownValues);
+        }
+        if (inflectionJSON.dial) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'dial', 'dialect', this.config.allowUnknownValues);
+        }
+        if (inflectionJSON.morph) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'morph', 'morph', this.config.allowUnknownValues);
+        }
         // we only use the inflection if it tells us something the dictionary details do not
         if (inflection[Feature.types.grmCase] ||
           inflection[Feature.types.tense] ||
@@ -2682,6 +2812,10 @@ class TuftsAdapter extends BaseAdapter {
           inflection[Feature.types.voice] ||
           inflection[Feature.types.person] ||
           inflection[Feature.types.comparison] ||
+          inflection[Feature.types.stemtype] ||
+          inflection[Feature.types.derivtype] ||
+          inflection[Feature.types.dialect] ||
+          inflection[Feature.types.morph] ||
           inflection[Feature.types.example]) {
           inflections.push(inflection);
         }

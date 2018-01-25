@@ -198,6 +198,18 @@ class TuftsAdapter extends BaseAdapter {
         mappingData.mapFeature(inflection, inflectionJSON, 'mood', 'mood', this.config.allowUnknownValues)
         mappingData.mapFeature(inflection, inflectionJSON, 'pers', 'person', this.config.allowUnknownValues)
         mappingData.mapFeature(inflection, inflectionJSON, 'comp', 'comparison', this.config.allowUnknownValues)
+        if (inflectionJSON.stemtype) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'stemtype', 'stemtype', this.config.allowUnknownValues)
+        }
+        if (inflectionJSON.derivtype) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'derivtype', 'derivtype', this.config.allowUnknownValues)
+        }
+        if (inflectionJSON.dial) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'dial', 'dialect', this.config.allowUnknownValues)
+        }
+        if (inflectionJSON.morph) {
+          mappingData.mapFeature(inflection, inflectionJSON, 'morph', 'morph', this.config.allowUnknownValues)
+        }
         // we only use the inflection if it tells us something the dictionary details do not
         if (inflection[Models.Feature.types.grmCase] ||
           inflection[Models.Feature.types.tense] ||
@@ -205,6 +217,10 @@ class TuftsAdapter extends BaseAdapter {
           inflection[Models.Feature.types.voice] ||
           inflection[Models.Feature.types.person] ||
           inflection[Models.Feature.types.comparison] ||
+          inflection[Models.Feature.types.stemtype] ||
+          inflection[Models.Feature.types.derivtype] ||
+          inflection[Models.Feature.types.dialect] ||
+          inflection[Models.Feature.types.morph] ||
           inflection[Models.Feature.types.example]) {
           inflections.push(inflection)
         }

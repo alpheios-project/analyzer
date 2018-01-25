@@ -96,6 +96,18 @@ describe('TuftsAdapter object', () => {
     expect(word[0].lemma.features.source[0].value).toEqual('Ox.Lat.Dict.')
   })
 
+  test('parses dialect stemtype derivtype morph', () => {
+    let adapter = new TuftsAdapter()
+    let word = require('../src/lib/engine/data/greek_elonu.json')
+    let homonym = adapter.transform(word)
+    expect(homonym.lexemes.length).toEqual(1)
+    expect(homonym.lexemes[0].inflections.length).toEqual(2)
+    expect(homonym.lexemes[0].inflections[0].dialect[0].value).toEqual('Attic')
+    expect(homonym.lexemes[0].inflections[0].stemtype[0].value).toEqual('aw_fut')
+    expect(homonym.lexemes[0].inflections[0].derivtype[0].value).toEqual('a_stem')
+    expect(homonym.lexemes[0].inflections[0].morph[0].value).toEqual('contr')
+  })
+
   test('multiple dict and mean entries', () => {
     let adapter = new TuftsAdapter()
     let data = require('../src/lib/engine/data/latin_conditum.json')
