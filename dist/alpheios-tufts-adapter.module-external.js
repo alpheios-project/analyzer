@@ -556,8 +556,9 @@ class TuftsAdapter extends BaseAdapter {
         }
       }
       for (let lex of lexemeSet) {
-        // we are going to skip lexemes if their lemma has no part of speech identified
-        if (lex.lemma.features[Feature.types.part]) {
+        // only process if we have a lemma that differs from the target
+        // word or if we have at least a part of speech
+        if ((lex.lemma.word !== targetWord) || (lex.lemma.features[Feature.types.part])) {
           lex.inflections = inflections;
           lexemes.push(lex);
         }
