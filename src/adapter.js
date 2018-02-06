@@ -240,7 +240,7 @@ class TuftsAdapter extends BaseAdapter {
       for (let lex of lexemeSet) {
         // only process if we have a lemma that differs from the target
         // word or if we have at least a part of speech
-        if ((lex.lemma.word !== targetWord) || (lex.lemma.features[Models.Feature.types.part])) {
+        if (mappingData.reportLexeme(lex)) {
           lex.inflections = inflections
           lexemes.push(lex)
         }

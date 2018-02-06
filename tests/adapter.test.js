@@ -133,4 +133,16 @@ describe('TuftsAdapter object', () => {
     expect(homonym.lexemes.length).toEqual(6)
     expect(homonym.lexemes[5].lemma.word).toEqual('sui')
   })
+
+  test('lemma filter', () => {
+    let adapter = new TuftsAdapter()
+    let data = require('../src/lib/engine/data/latin_comp.json')
+    let homonym = adapter.transform(data)
+    expect(homonym.lexemes.length).toEqual(2)
+    expect(homonym.lexemes[0].lemma.word).toEqual('mellitus')
+    expect(homonym.lexemes[1].lemma.word).toEqual('que')
+    data = require('../src/lib/engine/data/hazm.json')
+    homonym = adapter.transform(data)
+    expect(homonym.lexemes.length).toEqual(1)
+  })
 })

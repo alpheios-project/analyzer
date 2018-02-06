@@ -37,6 +37,10 @@ class ImportData {
       }
       return propertyValues
     }
+    // may be overridden by specifc engine use via setLexemeFilter - default assumes we will have a part of speech
+    this.reportLexeme = function (lexeme) {
+      return lexeme.lemma.features[Models.Feature.types.part]
+    }
   }
 
     /**
@@ -101,6 +105,13 @@ class ImportData {
    */
   setPropertyParser (callback) {
     this.parseProperty = callback
+  }
+
+  /**
+   * Add an engine-specific lexeme filter
+   */
+  setLexemeFilter (callback) {
+    this.reportLexeme = callback
   }
 
   /**
