@@ -145,4 +145,12 @@ describe('TuftsAdapter object', () => {
     homonym = adapter.transform(data)
     expect(homonym.lexemes.length).toEqual(1)
   })
+
+  test('multivalued features', () => {
+    let adapter = new TuftsAdapter()
+    let data = require('../src/lib/engine/data/multival.json')
+    let homonym = adapter.transform(data)
+    expect(homonym.lexemes.length).toEqual(5)
+    expect(homonym.lexemes[3].inflections[0].morph.length).toEqual(2)
+  })
 })

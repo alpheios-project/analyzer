@@ -126,12 +126,15 @@ class ImportData {
     let mapped = []
     let values = []
     if (inputElem[inputName]) {
-      values = this.parseProperty(inputName, inputElem[inputName].$)
+      if (Array.isArray(inputElem[inputName])) {
+        for (let e of inputElem[inputName]) {
+          values.push(...this.parseProperty(inputName, e.$))
+        }
+      } else {
+        values = this.parseProperty(inputName, inputElem[inputName].$)
+      }
     }
     for (let value of values) {
-      if (inputName === 'pers') {
-        console.log(`map value ${value}`)
-      }
       let features = this[Models.Feature.types[featureName]].get(
         value, inputElem[inputName].order, allowUnknownValues)
       if (Array.isArray(features)) {
