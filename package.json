@@ -1,6 +1,6 @@
 {
   "name": "alpheios-tufts-adapter",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Alpheios Morph Client Adapter for Tufts Morphology Service",
   "main": "dist/alpheios-tufts-adapter.standalone.js",
   "moduleExternal": "dist/alpheios-tufts-adapter.module-external.js",
